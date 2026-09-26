@@ -1,0 +1,6 @@
+{
+  "name": "The Orchard",
+  "description": "A cozy ASCII art agricultural simulator with seasonal economics, farmhouse cider pressing, and roadside farmers market trading.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
