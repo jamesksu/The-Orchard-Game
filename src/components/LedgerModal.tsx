@@ -15,6 +15,7 @@ interface LedgerModalProps {
   onResetGame: () => void;
   onManualSave: () => void;
   onOpenWelcomePlaque?: () => void;
+  fontScale?: number;
 }
 
 export const LedgerModal: React.FC<LedgerModalProps> = ({
@@ -29,6 +30,7 @@ export const LedgerModal: React.FC<LedgerModalProps> = ({
   onResetGame,
   onManualSave,
   onOpenWelcomePlaque,
+  fontScale = 1,
 }) => {
   if (!isOpen) return null;
 
@@ -37,7 +39,13 @@ export const LedgerModal: React.FC<LedgerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs select-none">
-      <div className="bg-[#fcfbf9] border border-stone-300 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+      <div
+        style={{
+          transform: fontScale !== 1 ? `scale(${fontScale})` : undefined,
+          transformOrigin: 'center center',
+        }}
+        className="bg-[#fcfbf9] border border-stone-300 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden transition-transform duration-150"
+      >
         {/* Header */}
         <div className="p-4 md:p-6 border-b border-stone-200 flex items-center justify-between bg-stone-100/70">
           <div>

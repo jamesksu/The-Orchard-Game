@@ -1,17 +1,19 @@
 import React, { useEffect } from 'react';
-import { renderUnreachableApplesPlaque } from '../services/asciiArt';
+import { renderBlockedPathPlaque, renderClearedPathPlaque } from '../services/asciiArt';
 import { SoundEngine } from '../services/sound';
 
-interface UnreachableApplesModalProps {
+interface BlockedPathModalProps {
   isOpen: boolean;
   onClose: () => void;
   fontScale?: number;
+  isCleared?: boolean;
 }
 
-export const UnreachableApplesModal: React.FC<UnreachableApplesModalProps> = ({
+export const BlockedPathModal: React.FC<BlockedPathModalProps> = ({
   isOpen,
   onClose,
   fontScale = 1,
+  isCleared = false,
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -32,7 +34,7 @@ export const UnreachableApplesModal: React.FC<UnreachableApplesModalProps> = ({
     onClose();
   };
 
-  const plaqueLines = renderUnreachableApplesPlaque();
+  const plaqueLines = isCleared ? renderClearedPathPlaque() : renderBlockedPathPlaque();
 
   return (
     <div
@@ -40,10 +42,10 @@ export const UnreachableApplesModal: React.FC<UnreachableApplesModalProps> = ({
       onClick={handleDismiss}
       role="dialog"
       aria-modal="true"
-      aria-label="Apples Out of Reach"
+      aria-label={isCleared ? 'Forest Trail Notice' : 'Blocked Forest Path Notice'}
     >
       <div
-        className="bg-[#fbf9f4] border border-stone-300 rounded-xl shadow-2xl p-4 sm:p-6 max-w-lg w-full max-h-[88vh] overflow-y-auto flex flex-col items-center cursor-pointer transition-transform hover:scale-[1.005] active:scale-[0.995]"
+        className="bg-[#fbf9f4] border border-stone-300 rounded-xl shadow-2xl p-4 sm:p-6 max-w-xl w-full max-h-[88vh] overflow-y-auto flex flex-col items-center cursor-pointer transition-transform hover:scale-[1.005] active:scale-[0.995]"
         onClick={(e) => {
           e.stopPropagation();
           handleDismiss();

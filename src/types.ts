@@ -61,14 +61,22 @@ export interface Upgrade {
   costMultiplier: number;
 }
 
+export interface RecipeIngredient {
+  fruitType: FruitType;
+  amount: number;
+}
+
 export interface CraftRecipe {
   id: string;
   name: string;
   outputName: string;
-  fruitType: FruitType;
-  fruitRequired: number;
+  ingredients: RecipeIngredient[];
   bottleValue: number;
   description: string;
+  category?: '2-produce' | '3-produce' | '4-produce';
+  badge?: string;
+  fruitType?: FruitType;
+  fruitRequired?: number;
 }
 
 export interface Achievement {
@@ -93,4 +101,4 @@ export interface FloatingParticle {
   isCrit?: boolean;
 }
 
-export type TabType = 'orchard' | 'farmhouse' | 'market' | 'upgrades' | 'achievements' | 'tractorman';
+export type TabType = 'orchard' | 'farmhouse' | 'market' | 'upgrades' | 'achievements' | 'tractorman' | 'mainstreet' | 'forestpath' | 'livingroom';

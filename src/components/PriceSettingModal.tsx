@@ -19,6 +19,7 @@ interface PriceSettingModalProps {
   onUpdatePrice: (newPrice: number) => void;
   onToggleAutoSell: () => void;
   onClose: () => void;
+  fontScale?: number;
 }
 
 export const PriceSettingModal: React.FC<PriceSettingModalProps> = ({
@@ -35,6 +36,7 @@ export const PriceSettingModal: React.FC<PriceSettingModalProps> = ({
   onUpdatePrice,
   onToggleAutoSell,
   onClose,
+  fontScale = 1,
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -157,7 +159,7 @@ export const PriceSettingModal: React.FC<PriceSettingModalProps> = ({
         {/* ASCII Sign Board */}
         <div className="w-full overflow-x-auto flex justify-center ascii-scroll mb-3">
           <pre
-            style={{ fontSize: '0.85rem', lineHeight: '1.24' }}
+            style={{ fontSize: `${0.85 * fontScale}rem`, lineHeight: '1.24' }}
             onClick={handlePlaqueClick}
             onKeyDown={handlePlaqueKeyDown}
             className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight select-none text-center inline-block min-w-max"

@@ -219,7 +219,7 @@ export function renderFarmhouse(smokeFrame = 0, showLadder = true): string[] {
   ];
 }
 
-export function renderSwingset(swingFrame = 0): string[] {
+export function renderSwingset(swingFrame = 0, trimPadding = false): string[] {
   const frameColor = 'text-[#78350f]';
   const ropeColor = 'text-[#64748b]';
   const seatColor = 'text-[#b45309] font-bold';
@@ -232,9 +232,11 @@ export function renderSwingset(swingFrame = 0): string[] {
   // 4-phase sway cycle: 0 = center, 1 = sway right (\), 2 = center, 3 = sway left (/)
   const f = Math.abs(swingFrame) % 4;
 
+  let lines: string[];
+
   if (f === 1) {
     // Sway right (\  \)
-    return [
+    lines = [
       '                                 ',
       '                                 ',
       '                                 ',
@@ -249,11 +251,9 @@ export function renderSwingset(swingFrame = 0): string[] {
       `<span class="${weedDark}">/|\\|/</span>  <span class="${frameColor}">/========================\\</span> <span class="${weedDark}">/|\\|/</span>`,
       ` <span class="${weedBright}">\\w/</span>                  <span class="${grassColor}">\\v/</span>         <span class="${weedBright}">\\v//v/</span>`,
     ];
-  }
-
-  if (f === 3) {
+  } else if (f === 3) {
     // Sway left (/  /)
-    return [
+    lines = [
       '                                 ',
       '                                 ',
       '                                 ',
@@ -268,23 +268,70 @@ export function renderSwingset(swingFrame = 0): string[] {
       `<span class="${weedDark}">/|\\|/</span>  <span class="${frameColor}">/========================\\</span> <span class="${weedDark}">/|\\|/</span>`,
       ` <span class="${weedBright}">\\w/</span>                  <span class="${grassColor}">\\v/</span>         <span class="${weedBright}">\\v//v/</span>`,
     ];
+  } else {
+    // Center resting state (|  |)
+    lines = [
+      '                                 ',
+      '                                 ',
+      '                                 ',
+      `             <span class="${frameColor}">______________</span>      `,
+      `           <span class="${frameColor}">/================\\</span>    `,
+      `          <span class="${frameColor}">//</span>  <span class="${ropeColor}">|  |    |  |</span>  <span class="${frameColor}">\\\\</span>   `,
+      `         <span class="${frameColor}">//</span>   <span class="${ropeColor}">|  |    |  |</span>   <span class="${frameColor}">\\\\</span>  `,
+      `        <span class="${frameColor}">//</span>    <span class="${ropeColor}">|  |    |  |</span>    <span class="${frameColor}">\\\\</span> `,
+      `       <span class="${frameColor}">//</span>    <span class="${seatColor}">[====]  [====]</span>    <span class="${frameColor}">\\\\</span>`,
+      `       <span class="${frameColor}">||</span>                      <span class="${frameColor}">||</span>  <span class="${weedBright}">\\/</span>`,
+      `<span class="${weedMid}">(\\|/)</span>  <span class="${frameColor}">||</span>                      <span class="${frameColor}">||</span>   <span class="${weedMid}">(\\|/)</span>`,
+      `<span class="${weedDark}">/|\\|/</span>  <span class="${frameColor}">/========================\\</span> <span class="${weedDark}">/|\\|/</span>`,
+      ` <span class="${weedBright}">\\w/</span>                  <span class="${grassColor}">\\v/</span>         <span class="${weedBright}">\\v//v/</span>`,
+    ];
   }
 
-  // Center resting state (|  |)
+  // When trimPadding is true (e.g. blocked path is rendered above it), remove 2 leading blank lines
+  return trimPadding ? lines.slice(2) : lines;
+}
+
+export function renderBlockedForestPath(shiftSpaces = 8): string[] {
+  const pad = ' '.repeat(shiftSpaces);
+  const pineTop = 'text-[#15803d] font-bold';
+  const pineMid = 'text-[#166534] font-semibold';
+  const pineDark = 'text-[#14532d] font-bold';
+  const trunk = 'text-[#78350f] font-bold';
+  const trail = 'text-[#78716c] font-medium';
+  const barrier = 'text-[#5c2606] font-black';
+  const tangle = 'text-[#92400e] font-bold';
+
   return [
-    '                                 ',
-    '                                 ',
-    '                                 ',
-    `             <span class="${frameColor}">______________</span>      `,
-    `           <span class="${frameColor}">/================\\</span>    `,
-    `          <span class="${frameColor}">//</span>  <span class="${ropeColor}">|  |    |  |</span>  <span class="${frameColor}">\\\\</span>   `,
-    `         <span class="${frameColor}">//</span>   <span class="${ropeColor}">|  |    |  |</span>   <span class="${frameColor}">\\\\</span>  `,
-    `        <span class="${frameColor}">//</span>    <span class="${ropeColor}">|  |    |  |</span>    <span class="${frameColor}">\\\\</span> `,
-    `       <span class="${frameColor}">//</span>    <span class="${seatColor}">[====]  [====]</span>    <span class="${frameColor}">\\\\</span>`,
-    `       <span class="${frameColor}">||</span>                      <span class="${frameColor}">||</span>  <span class="${weedBright}">\\/</span>`,
-    `<span class="${weedMid}">(\\|/)</span>  <span class="${frameColor}">||</span>                      <span class="${frameColor}">||</span>   <span class="${weedMid}">(\\|/)</span>`,
-    `<span class="${weedDark}">/|\\|/</span>  <span class="${frameColor}">/========================\\</span> <span class="${weedDark}">/|\\|/</span>`,
-    ` <span class="${weedBright}">\\w/</span>                  <span class="${grassColor}">\\v/</span>         <span class="${weedBright}">\\v//v/</span>`,
+    `${pad}          <span class="${pineTop}">_    /\\</span>   `,
+    `${pad}              <span class="${pineTop}">/ \\  /  \\</span>       `,
+    `${pad}      <span class="${pineMid}">/\\ /\\</span> <span class="${trunk}">||</span>   <span class="${trunk}">| |</span>   <span class="${pineMid}">/\\</span>`,
+    `${pad}      <span class="${pineMid}">/  \\</span><span class="${trunk}">||</span> <span class="${trunk}">||</span> <span class="${pineTop}">/\\</span><span class="${trunk}">| |</span>  <span class="${pineMid}">/  \\</span>`,
+    `${pad}      <span class="${pineDark}">/ /\\ \\</span> <span class="${pineDark}">/</span><span class="${trail}">.' .'.</span> <span class="${pineDark}">\\</span> <span class="${pineDark}">/ /\\ \\</span>`,
+    `${pad}      <span class="${pineDark}">| /  \\</span> <span class="${barrier}"># ##  ## ##</span> <span class="${pineDark}">/  \\ |</span>`,
+    `${pad}      <span class="${pineDark}">\\</span> <span class="${trunk}"> ||</span> <span class="${pineDark}">/</span><span class="${tangle}">|/|\\  \\| \\|\\</span> <span class="${trunk}">||</span> <span class="${pineDark}">/</span>`,
+    `${pad}       <span class="${trunk}">||</span> <span class="${tangle}">\\\\ /|.||/.//\\</span> <span class="${trunk}">||</span>`,
+    `${pad}          <span class="${tangle}">\\|_\\\\ /|| ||\\\\</span>`,
+  ];
+}
+
+export function renderOpenForestPath(shiftSpaces = 16): string[] {
+  const pad = ' '.repeat(shiftSpaces);
+  const pineTop = 'text-[#15803d] font-bold';
+  const pineMid = 'text-[#166534] font-semibold';
+  const pineDark = 'text-[#14532d] font-bold';
+  const trunk = 'text-[#78350f] font-bold';
+  const trail = 'text-[#78716c] font-medium';
+
+  return [
+    `${pad}     <span class="${pineTop}">_    /\\</span>   `,
+    `${pad}         <span class="${pineTop}">/ \\  /  \\</span>       `,
+    `${pad}  <span class="${pineMid}">/\\ /\\</span> <span class="${trunk}">||</span>   <span class="${trunk}">||</span>    <span class="${pineMid}">/\\</span>`,
+    `${pad}  <span class="${pineMid}">/  \\</span><span class="${trunk}">||</span> <span class="${trunk}">||</span> <span class="${pineTop}">/\\</span><span class="${trunk}">||</span>   <span class="${pineMid}">/  \\</span>`,
+    `${pad}  <span class="${pineDark}">/ /\\ \\</span> <span class="${pineDark}">/</span><span class="${trail}">.' .'.</span> <span class="${pineDark}">\\</span> <span class="${pineDark}">/ /\\ \\</span>`,
+    `${pad}  <span class="${pineDark}">| /  \\</span> <span class="${pineDark}">/</span><span class="${trail}"> '...'.'.</span><span class="${pineDark}">\\</span> <span class="${pineDark}">/  \\ |</span>`,
+    `${pad}  <span class="${pineDark}">\\</span> <span class="${trunk}">||</span> <span class="${pineDark}">/</span><span class="${trail}">. '.'.''. .</span><span class="${pineDark}">\\</span> <span class="${trunk}">||</span> <span class="${pineDark}">/</span>`,
+    `${pad}  <span class="${trunk}">||</span><span class="${pineDark}">/</span><span class="${trail}">''.... ..'. .</span><span class="${pineDark}">\\</span><span class="${trunk}">||</span>`,
+    `${pad}  <span class="${pineDark}">/</span><span class="${trail}">.... '. ..   ..</span><span class="${pineDark}">\\</span>`,
   ];
 }
 
@@ -452,6 +499,65 @@ export function renderFiftyDollarMilestonePlaque(): string[] {
     [
       'Congratulations! You have officially commandeered this property and can call it your own, for now.',
       'Click on the apples to edit the details and start selling to passersby. Who knows maybe you’ll sell $1,000 in Apples!',
+    ],
+    58,
+    true
+  );
+}
+
+export function renderTractorManIntroPlaque(): string[] {
+  return renderBoxSign(
+    'TRACTORMAN',
+    [
+      "Howdy. I see you're fiddling around at the old Mahoney place.  It's a shame what happened to them all, disappearing that like that out of thin air.  What that's been, maybe, 8 years ago now?",
+      "Anyway, I like that the stand is up and running again.  I should be able to help you out a bit for now.  I've got some starter services to offer ya.",
+    ],
+    58
+  );
+}
+
+export function renderTractorManServicesPlaque(): string[] {
+  return renderBoxSign(
+    'TRACTORMAN SERVICES',
+    [
+      'Services I can offer are... placeholder text...',
+    ],
+    58,
+    true
+  );
+}
+
+export function renderFruitJuicerPlaqueHeader(): string[] {
+  return renderBoxSign(
+    'FARMHOUSE FRUIT JUICER',
+    [
+      'Cold-press freshly harvested orchard produce into artisanal juices!',
+      'Combine 2 to 4 farm ingredients to create delicious bottled nectars.',
+      'All crafted juices are preserved in your personal inventory.',
+    ],
+    58,
+    true
+  );
+}
+
+export function renderBlockedPathPlaque(): string[] {
+  return renderBoxSign(
+    'BLOCKED FOREST PATH',
+    [
+      'An overgrown logging trail heads north into the deep pines, but it is heavily barricaded by fallen timber, barbed brambles, and thick criss-crossed logs.',
+      'You cannot pass through on foot. Perhaps someone around here has the heavy machinery or equipment to help clear the path...',
+    ],
+    58,
+    true
+  );
+}
+
+export function renderClearedPathPlaque(): string[] {
+  return renderBoxSign(
+    'FOREST TRAIL',
+    [
+      'The tangled barrier of logs and briars has been cleared away! A peaceful pebble trail now winds gently north into the deep canopy of the forest.',
+      'The path forward is open.',
     ],
     58,
     true
@@ -914,7 +1020,7 @@ export function generateRoadsideStandLines(
       } else if (idx === 13) {
         renderedLine = renderedLine.replace(
           /\|--\|\|------\./,
-          '|--||--<span class="text-zinc-950 font-bold animate-crow">//</span>--.'
+          '|--||---<span data-crow="true" class="text-amber-800 font-bold animate-crow inline-block cursor-pointer">||</span>-.'
         );
       }
     }
@@ -951,30 +1057,41 @@ export function generateRoadsideStandLines(
 
 export const TRACTOR_MAN_RAW_LINES = [
   '                                                                            _..---""""""---.._',
-  '                                       _                                _.-\'                  \'-._',
-  '           _                 _       _ \\\\                             .\'                          \'.',
-  '         _| |_      __      ( )     / \\ \\\\                          .\'                              \'.',
-  '        | | | |   _|  |_     |      \\_/  \\                        .\'                                  \'.',
-  '    ____|_|_|_|__| |__| |____|_______|___|                      .\'______________________________________\'.    _',
+  '          >(o)                         _                                _.-\'                  \'-._',
+  '           ||                _         \\\\                             .\'     ______________       \'.',
+  '         _| |_      __      ( )    ____ \\\\                          .\'      /              \\        \'.',
+  '        | | | |   _|  |_     |     \\__/  \\                        .\'       /================\\         \'.',
+  '    ____|_|_|_|__| |__| |____|______||___|                      .\'________/__________________\\__________\'.    _',
   '   / ||.-=.-=.-=.-=.-=.-.     _..-------.._                     |                                        |   /^\\',
-  '  /  |||                |   .\'             \'.                   |  ||||||||||||||||||||||||||||||||||||  | ========',
-  ' |   |||________________|  /                 \\                  |  |..................................|  |   |+ ) \\\\  ',
-  ' |   ||                   |                   |                 |  |..................................|  |    /\\  | |',
+  '  /  |||                |   .\'___________  \'.                   |  ||||||||||||||||||||||||||||||||||||  | ========',
+  ' |   |||________________|  / /           \\\\  \\                  |  |..................................|  |   |+ ) \\\\  ',
+  ' |   ||                   |  |           ||   |                 |  |..................................|  |    /\\  | |',
   ' |   ||                   |                   |                 |  ||||||||||||||||||||||||||||||||||||  |  / || / /',
-  ' |   ||                   |                   |                 |________________________________________|  |||| |/ ',
-  ' |                        |                   |                /|                                        |  \\\\||=)',
-  ' |                        |                   |               / |                                        |   \\||-|',
-  ' |                        |    _.-"""""-._    |=====00=====__/__|          _.-"""""-._          _.-"""""-. \\  WW  \\',
-  ' |          .--.          |  .\'  \\  |  /  \'.  |          |   _ |        .\'  \\  |  /  \'.      .\'  \\  |  /  \'.| | |  \\',
-  ' |------------------------| /  - - (O) - -  \\ |          |  | \\|       /  - - (O) - -  \\    /  - - (O) - -  \\ |||  /',
-  '  \\________/ () \\_________| \\    /  |  \\    / |          |  |  |       \\    /  |  \\    /    \\    /  |  \\    / ||| /',
-  '           \\    /            \'._   \\|/   _.\'  |          |__|  |        \'._   \\|/   _.\'      \'._   \\|/   _.\'  | |/',
-  '            \'--\'                "-.___.-"                (_)                "-.___.-"            "-.___.-"    |__\\',
+  ' |   ||___________________|___________________|                 |________________________________________|  |||| |/ ',
+  ' |    ^...................|.................. |                /|                                        |  \\\\||=)',
+  ' |                        |      /     \\      |               / |........................................|   \\||-|',
+  ' |                        |    _.-"""""-._    |            __/__|          _.-"""""-._          _.-"""""-.    WW  \\',
+  ' |                        |  .\'  \\  |  /  \'.  |=====00=====()   |         / \\  |  /  \'.        / \\  |  /  \'.  | |  \\',
+  ' |----------.--.----------|  |  - -(O) - - |  |                 |        |- - (O) - - |       |- - (O)  - -|  |||  /',
+  '  \\________/    \\_________|__|   /  |  \\   |__|                 |        |  /  |  \\   |       |  /  |  \\   |  ||| /',
+  '           \\ () /            \'._         _.\'                    |________ \\         _.\'_______ \\          .\'  | |/',
+  '            \'--\'                "-.___.-"                                   "-.___.-"            "-.___.-"    |__\\',
 ];
 
 export function renderColoredTractorMan(): string[] {
-  return TRACTOR_MAN_RAW_LINES.map((raw) => {
+  return TRACTOR_MAN_RAW_LINES.map((raw, lineIdx) => {
     let s = esc(raw);
+
+    // 0. Crow perched on top-left exhaust stack
+    s = s
+      .replaceAll(
+        '&gt;(o)',
+        '<span data-crow="true" role="button" tabindex="0" title="A friendly black crow perched on the exhaust stack... (Click to fly back to Market Stand)" class="animate-crow cursor-pointer inline-block select-none group hover:scale-125 transition-transform"><span class="text-zinc-950 font-black">&gt;</span><span class="text-zinc-900 font-bold">(</span><span class="text-amber-400 font-bold">o</span><span class="text-zinc-950 font-black">)</span></span>'
+      )
+      .replaceAll(
+        '           ||                _',
+        '           <span data-crow="true" role="button" tabindex="0" class="text-amber-800 font-bold animate-crow inline-block cursor-pointer" title="Click to fly back to Market Stand">||</span>                _'
+      );
 
     // 1. Spoke Hubs (O)
     s = s.replaceAll(
@@ -985,21 +1102,28 @@ export function renderColoredTractorMan(): string[] {
     // 2. Wheel Spoke lines
     s = s
       .replaceAll('- -', '<span class="text-[#d97706] font-bold">- -</span>')
+      .replaceAll('- -(O)', '<span class="text-[#d97706] font-bold">- -</span>(O)')
+      .replaceAll('/ \\  |  /', '<span class="text-[#ca8a04] font-bold">/ \\  |  /</span>')
       .replaceAll('\\  |  /', '<span class="text-[#ca8a04] font-bold">\\  |  /</span>')
       .replaceAll('/  |  \\', '<span class="text-[#ca8a04] font-bold">/  |  \\</span>')
+      .replaceAll('/     \\', '<span class="text-[#ca8a04] font-bold">/     \\</span>')
       .replaceAll('\\|/', '<span class="text-[#ca8a04] font-bold">\\|/</span>');
 
     // 3. Wheel curves & tire rims
     s = s
       .replaceAll('_.-"""""-._', '<span class="text-[#475569] font-bold">_.-"""""-._</span>')
       .replaceAll('"-.___.-"', '<span class="text-[#334155] font-bold">"-.___.-"</span>')
+      .replaceAll('\'._         _.\'', '<span class="text-[#475569] font-bold">\'._         _.\'</span>')
       .replaceAll('_..-------.._', '<span class="text-[#334155] font-bold">_..-------.._</span>');
 
-    // 4. Coupling pin & drawbar
+    // 4. Coupling pin, drawbar & trailer hitch
     s = s
       .replaceAll('=====00=====', '<span class="text-[#b45309] font-bold">=====</span><span class="text-[#f59e0b] font-black">00</span><span class="text-[#b45309] font-bold">=====</span>')
       .replaceAll('()', '<span class="text-[#f59e0b] font-bold">()</span>')
-      .replaceAll('(_)', '<span class="text-[#b45309] font-bold">(_)</span>');
+      .replaceAll('(_)', '<span class="text-[#b45309] font-bold">(_)</span>')
+      .replaceAll('\\ () /', '<span class="text-[#334155]">\\ </span><span class="text-[#f59e0b] font-bold">()</span><span class="text-[#334155]"> /</span>')
+      .replaceAll('\'--\'', '<span class="text-[#475569] font-bold">\'--\'</span>')
+      .replaceAll('|----------.--.----------|', '<span class="text-[#475569] font-bold">|----------</span><span class="text-[#94a3b8]">.--.</span><span class="text-[#475569] font-bold">----------|</span>');
 
     // 5. Radiator grille slats
     s = s.replaceAll(
@@ -1007,7 +1131,7 @@ export function renderColoredTractorMan(): string[] {
       '<span class="text-[#94a3b8] font-bold">.-=.-=.-=.-=.-.</span>'
     );
 
-    // 6. Huge Green Rear Fender & Tractor Body
+    // 6. Huge Green Rear Fender, Tractor Body & Canopy
     s = s
       .replaceAll(
         '_..---""""""---.._',
@@ -1018,42 +1142,582 @@ export function renderColoredTractorMan(): string[] {
         '<span class="text-[#15803d] font-bold">_.-\'                  \'-._</span>'
       )
       .replaceAll(
-        '.\'______________________________________\'.',
-        '<span class="text-[#166534] font-bold">.\'______________________________________\'.</span>'
+        '.\'________/__________________\\__________\'.',
+        '<span class="text-[#15803d] font-bold">.\'________</span><span class="text-[#ca8a04] font-bold">/__________________\\</span><span class="text-[#15803d] font-bold">__________\'.</span>'
+      )
+      .replaceAll(
+        '/================\\',
+        '<span class="text-[#eab308] font-bold">/================\\</span>'
+      )
+      .replaceAll(
+        '/              \\',
+        '<span class="text-[#ca8a04] font-bold">/              \\</span>'
+      )
+      .replaceAll(
+        '______________',
+        '<span class="text-[#ca8a04] font-bold">______________</span>'
       );
 
-    // 7. Slat vents & mesh
+    // 7. Slat vents, mesh & fuel tank
     s = s
       .replaceAll(
         '||||||||||||||||||||||||||||||||||||',
         '<span class="text-[#475569] font-bold">||||||||||||||||||||||||||||||||||||</span>'
       )
       .replaceAll(
+        '........................................',
+        '<span class="text-[#64748b]">........................................</span>'
+      )
+      .replaceAll(
         '..................................',
         '<span class="text-[#64748b]">..................................</span>'
+      )
+      .replaceAll(
+        '^...................|..................',
+        '<span class="text-[#64748b]">^...................|..................</span>'
+      )
+      .replaceAll(
+        '.\'___________  \'.',
+        '<span class="text-[#16a34a] font-bold">.\'___________  \'.</span>'
       );
 
-    // 8. Engine Hood & Exhaust Pipes
+    // 8. Engine Hood, Exhaust & Manifold
     s = s
       .replaceAll(
-        '____|_|_|_|__| |__| |____|_______|___|',
-        '<span class="text-[#15803d] font-bold">____|_|_|_|__| |__| |____|_______|___|</span>'
+        '____|_|_|_|__| |__| |____|______||___|',
+        '<span class="text-[#15803d] font-bold">____|_|_|_|__| |__| |____|______||___|</span>'
       )
       .replaceAll('| | | |', '<span class="text-[#ca8a04] font-bold">| | | |</span>')
       .replaceAll('_| |_', '<span class="text-[#d97706] font-bold">_| |_</span>')
-      .replaceAll('_|  |_', '<span class="text-[#d97706] font-bold">_|  |_</span>');
+      .replaceAll('_|  |_', '<span class="text-[#d97706] font-bold">_|  |_</span>')
+      .replaceAll('\\__/  \\', '<span class="text-[#94a3b8] font-bold">\\__/  \\</span>');
 
-    // 9. TractorMan himself!
-    s = s
-      .replaceAll('/^\\', '<span class="text-[#b45309] font-black">/^\\</span>')
-      .replaceAll('========', '<span class="text-[#78350f] font-bold">========</span>')
-      .replaceAll('|+ )', '<span class="text-[#f59e0b] font-bold">|+ )</span>')
-      .replaceAll('WW', '<span class="text-[#dc2626] font-bold">WW</span>')
-      .replaceAll('\\\\||=)', '<span class="text-[#2563eb] font-bold">\\\\||</span><span class="text-[#f59e0b] font-bold">=)</span>')
-      .replaceAll('\\||-|', '<span class="text-[#2563eb] font-bold">\\||-|</span>')
-      .replaceAll('|||| |/', '<span class="text-[#2563eb] font-bold">|||| |/</span>')
-      .replaceAll('|__\\', '<span class="text-[#78350f] font-bold">|__\\</span>');
+    // 9. TractorMan himself on the right side!
+    if (lineIdx === 6) {
+      s = s.replace(
+        '/^\\',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-110 text-[#b45309] font-black">/^\\</span>'
+      );
+    } else if (lineIdx === 7) {
+      s = s.replace(
+        '========',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#78350f] font-bold">========</span>'
+      );
+    } else if (lineIdx === 8) {
+      s = s.replace(
+        '|+ ) \\\\',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#f59e0b] font-bold">|+ ) \\\\</span>'
+      );
+    } else if (lineIdx === 9) {
+      s = s.replace(
+        '/\\  | |',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#2563eb] font-bold">/\\  | |</span>'
+      );
+    } else if (lineIdx === 10) {
+      s = s.replace(
+        '/ || / /',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#2563eb] font-bold">/ || / /</span>'
+      );
+    } else if (lineIdx === 11) {
+      s = s.replace(
+        '|||| |/',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#2563eb] font-bold">|||| |/</span>'
+      );
+    } else if (lineIdx === 12) {
+      s = s.replace(
+        '\\\\||=)',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105"><span class="text-[#2563eb] font-bold">\\\\||</span><span class="text-[#f59e0b] font-bold">=)</span></span>'
+      );
+    } else if (lineIdx === 13) {
+      s = s.replace(
+        '\\||-|',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#2563eb] font-bold">\\||-|</span>'
+      );
+    } else if (lineIdx === 14) {
+      s = s.replace(
+        'WW  \\',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-110 text-[#dc2626] font-bold">WW  \\</span>'
+      );
+    } else if (lineIdx === 15) {
+      s = s.replace(
+        '| |  \\',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#2563eb] font-bold">| |  \\</span>'
+      );
+    } else if (lineIdx === 16) {
+      s = s.replace(
+        '|||  /',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#78350f] font-bold">|||  /</span>'
+      );
+    } else if (lineIdx === 17) {
+      s = s.replace(
+        '||| /',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#78350f] font-bold">||| /</span>'
+      );
+    } else if (lineIdx === 18) {
+      s = s.replace(
+        '| |/',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#78350f] font-bold">| |/</span>'
+      );
+    } else if (lineIdx === 19) {
+      s = s.replace(
+        '|__\\',
+        '<span data-tractorman="true" role="button" tabindex="0" title="TractorMan - Click to see services offered" class="cursor-pointer inline-block transition-transform hover:scale-105 text-[#78350f] font-bold">|__\\</span>'
+      );
+    }
 
     return `<span class="text-[#334155]">${s}</span>`;
+  });
+}
+
+export const MAIN_STREET_RAW_LINES: string[] = [
+  "           _________        (__    ))                                                        (_(_  )",
+  "          /        /|        ( (   )           ( (   )                                        ((  ))",
+  "         /________/ |                         (__    ))              |>                                      (   ) _)",
+  "        |  _ _ _  | |                __            (__)              |                                        (__))",
+  "        | |_|_|_| | |              ((  ))                           oooo                  _________                ///////\\\\\\\\\\\\\\\\",
+  "        | |_|w|_| | |               ( )                      _.-'----------'-._          /         \\                |         | |",
+  "        |  _ _ _  | |                                       .'/////// \\\\\\\\\\\\\\\\'.        |$$$$$$$$$$$|               |  _ _ _  | |",
+  "        | |_|_|_| | |        /-------------\\               ///// //// \\\\\\\\ \\\\\\\\\\\\       |    ___    |               | |_|_|_| | |",
+  "        | |_{_}_| | |        | |_| |_| |_| |              | ....... (_) ........ |      |   |_|_|   |               |         | |",
+  "        |         | |        |             |              |______________________|      |           |               |  BOOKS  | |",
+  "        |<><><><><| |       =================              |MMMMMMMMMMMMMMMMMMM|        |    BANK   |               |  & MORE | |",
+  "        |  REALTY | |       | ~ ~ ~ ~ ~ ~ ~ |              |:::|  |:| |:|  |:::|      =================             |         | |",
+  "      =================     |  ___CAFE ___  |              |:::|__|:|_|:|__|:::|      | | | | | | | | |           =================",
+  "      | ::::::::::  | |     | |   |   |   | |         ^    |wwwwwwwwwwwwwwwwwww|      | | | | | | | | |           | ::::::::::  | |",
+  "      |    FARM     | |_.-._| |   |   |   | |_.-._   / \\   |     TOWN HALL     |      | |_|_|_|_|_|_| |    _.-._  |   BAKERY    | |",
+  "   _  |   SUPPLY    | |_____| |___|   |___| |_____| /   \\=========================    |  _        _   |   |_____| |             | |  _",
+  "  ( ) |  _________  | | || ||-o-o-o-o-o-o-o-| || ||/     \\|  __    _____    __  |     | | |      | |  |   | || || |  _________  | | ( )",
+  "   |  | |  |___|  | | |_||_||      ___      |_||_|||     || |  |  |     |  |  | |     | | |  ||  | |  |   |_||_|| | |  |___|  | | |  |",
+  " __|_ |_|_________|_|_|_____|_____|___|_____|_____||_ _ _||_|___|_|__o__|_|___|_|_____|______||_______|___|_____|_|_|_________|_|_|__|_",
+  "========================================================================================================================================",
+  "  |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |",
+  "========================================================================================================================================",
+  "::::::::::\\|/\\|/\\|/::::::::::::::::::\\|/\\|/\\|/::::::::::::::::::\\|/\\|/\\|/::::::::::::::::::\\|/\\|/\\|/::::::::::::::::::\\|/\\|/\\|/:::::::::",
+  "________________________________________________________________________________________________________________________________________",
+  "",
+  "    -          -          -          -          -          -          -          -          -          -          -          -",
+  "________________________________________________________________________________________________________________________________________",
+];
+
+export function renderColoredMainStreet(): string[] {
+  return MAIN_STREET_RAW_LINES.map((line, idx) => {
+    let s = line
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Signs - no tracking-wider to preserve monospace column alignment
+    s = s.replace('REALTY', '<span class="text-amber-800 font-bold">REALTY</span>');
+    s = s.replace('FARM', '<span class="text-emerald-800 font-bold">FARM</span>');
+    s = s.replace('SUPPLY', '<span class="text-emerald-800 font-bold">SUPPLY</span>');
+    s = s.replace('___CAFE ___', '<span class="text-amber-900 font-bold">___CAFE ___</span>');
+    s = s.replace('TOWN HALL', '<span class="text-blue-900 font-bold">TOWN HALL</span>');
+    s = s.replace('BANK', '<span class="text-emerald-900 font-bold">BANK</span>');
+    s = s.replace('BOOKS', '<span class="text-indigo-900 font-bold">BOOKS</span>');
+    s = s.replace('&amp; MORE', '<span class="text-indigo-900 font-bold">&amp; MORE</span>');
+    s = s.replace('BAKERY', '<span class="text-rose-800 font-bold">BAKERY</span>');
+
+    // Realty window cat & details
+    s = s.replace(/\|w\|/g, '|<span class="text-amber-600 font-black">w</span>|');
+    s = s.replace(/\{_\}/g, '<span class="text-amber-700 font-bold">{_}</span>');
+    s = s.replace(/&lt;&gt;&lt;&gt;&lt;&gt;&lt;&gt;&lt;/g, '<span class="text-amber-700 font-bold">&lt;&gt;&lt;&gt;&lt;&gt;&lt;&gt;&lt;</span>');
+
+    // Town hall details
+    s = s.replace(/\|&gt;/g, '<span class="text-amber-600 font-bold">|&gt;</span>');
+    s = s.replace(/oooo/g, '<span class="text-amber-700 font-bold">oooo</span>');
+    s = s.replace(/\(_\)/g, '<span class="text-amber-500 font-bold">(_)</span>');
+    s = s.replace(/MMMMMMMMMMMMMMMMMMM/g, '<span class="text-slate-600 font-bold">MMMMMMMMMMMMMMMMMMM</span>');
+    s = s.replace(/wwwwwwwwwwwwwwwwwww/g, '<span class="text-amber-700 font-bold">wwwwwwwwwwwwwwwwwww</span>');
+    s = s.replace(/\.'\/\/\/\/\/\/\/ \\\\\\\\\\\\\\\\'\./g, (m) => `<span class="text-sky-700 font-bold">${m}</span>`);
+    s = s.replace(/\/\/\/\/\/ \/\/\/\/ \\\\\\\\ \\\\\\\\\\\\/g, (m) => `<span class="text-sky-700 font-bold">${m}</span>`);
+
+    // Bank currency frieze & double doors
+    s = s.replace(/\${11}/g, (m) => `<span class="text-emerald-600 font-bold">${m}</span>`);
+    s = s.replace(/\|  \|\|  \|/g, '|  <span class="text-amber-800 font-bold">||</span>  |');
+    s = s.replace(/\|______\|\|_______\|/g, '|______<span class="text-amber-800 font-bold">||</span>_______|');
+
+    // Cafe awning & string lights
+    s = s.replace(/~ ~ ~ ~ ~ ~ ~/g, '<span class="text-amber-600 font-bold">~ ~ ~ ~ ~ ~ ~</span>');
+    s = s.replace(/-o-o-o-o-o-o-o-/g, '<span class="text-amber-800">-</span><span class="text-amber-400 font-bold">o</span><span class="text-amber-800">-</span><span class="text-amber-400 font-bold">o</span><span class="text-amber-800">-</span><span class="text-amber-400 font-bold">o</span><span class="text-amber-800">-</span><span class="text-amber-400 font-bold">o</span><span class="text-amber-800">-</span><span class="text-amber-400 font-bold">o</span><span class="text-amber-800">-</span><span class="text-amber-400 font-bold">o</span><span class="text-amber-800">-</span><span class="text-amber-400 font-bold">o</span><span class="text-amber-800">-</span>');
+
+    // Books awning - preserve exact length
+    s = s.replace(/\/\/\/\/\/\/\/\\{8}/g, (m) => `<span class="text-indigo-600 font-bold">${m}</span>`);
+
+    // Cobblestone sidewalk & hedge/grass planters on Line 22
+    if (idx === 22) {
+      s = s.replace(/\\\|\/\\\|\/\\\|\//g, (m) => `<span class="text-emerald-600 font-bold">${m}</span>`);
+      s = s.replace(/:+/g, '<span class="text-stone-400 font-bold">$&</span>');
+    } else {
+      // Farm supply and bakery awning ::::::::::
+      s = s.replace(/::::::::::/g, '<span class="text-stone-400 font-bold">::::::::::</span>');
+      // Town hall columns ::::
+      s = s.replace(/:::\|/g, '<span class="text-stone-400 font-bold">:::</span>|');
+      s = s.replace(/\|:::/g, '|<span class="text-stone-400 font-bold">:::</span>');
+    }
+
+    // Clouds (lines 0-5)
+    if (idx <= 5) {
+      const cloudSpan = (txt: string) => `<span class="text-stone-400 font-medium">${txt}</span>`;
+      s = s.replace(/\(__    \)\)/g, cloudSpan('(__    ))'));
+      s = s.replace(/\( \(   \)/g, cloudSpan('( (   )'));
+      s = s.replace(/\(_\(_  \)/g, cloudSpan('(_(_  )'));
+      s = s.replace(/\(\(  \)\)/g, cloudSpan('((  ))'));
+      s = s.replace(/\(   \) _\)/g, cloudSpan('(   ) _)'));
+      s = s.replace(/\(__\)/g, cloudSpan('(__)'));
+      s = s.replace(/\( \)/g, cloudSpan('( )'));
+    }
+
+    // Sidewalk trees (line 16)
+    if (idx === 16) {
+      s = s.replace(/\( \)/g, '<span class="text-emerald-600 font-bold">( )</span>');
+    }
+
+    // Road dashes
+    if (idx === 25) {
+      s = s.replace(/-/g, '<span class="text-amber-500 font-bold">-</span>');
+    }
+
+    return `<span class="text-[#334155] font-medium">${s}</span>`;
+  });
+}
+
+export const FOREST_PATH_RAW_LINES: string[] = [
+  "                                                                          /^\\",
+  "                                                                         /   \\",
+  "                            /^\\                                         /  ^  \\",
+  "                           /   \\                                       /  / \\  \\        \\/",
+  "                          /  ^  \\                                     /  / ^ \\  \\",
+  "                         /  / \\  \\                                   /  / / \\ \\  \\",
+  "                        /  / ^ \\  \\             /^\\                 /  / / ^ \\ \\  \\",
+  "                       /  / / \\ \\  \\           /   \\               /  / / / \\ \\ \\  \\",
+  "                      /  / / ^ \\ \\  \\         /  ^  \\             /  / / / ^ \\ \\ \\  \\",
+  "                     /  / / / \\ \\ \\  \\       /  / \\  \\           /  / / / / \\ \\ \\ \\  \\",
+  "          \\/        /  / / / ^ \\ \\ \\  \\     /  / ^ \\  \\         /  / / / / ^ \\ \\ \\ \\  \\    \\/",
+  "              \\/   /  / / / / \\ \\ \\ \\  \\   /  / / \\ \\  \\       /  / / / / / \\ \\ \\ \\ \\  \\      \\/",
+  "                  /  / / / / ^ \\ \\ \\ \\  \\ /  / / ^ \\ \\  \\     /  / / / / / ^ \\ \\ \\ \\ \\  \\",
+  "                 /__/_/_/_/_/ ^ \\_\\_\\_\\__\\\\_/_/_/_/ \\_\\__\\   /__/_/_/_/_/_/ ^ \\_\\_\\_\\____\\",
+  "     ^              |  |     | |   |  |     |  |  |   |  |      |  |     | |   |  |                         ^",
+  "    / \\        \\/   |  |     | |   |  |     |  |  |   |  |      |  |     | |   |  |         \\/             / \\",
+  "   / ^ \\            |  |  /\\ | |   |  |     |  |  |   |  |  /\\  |  |     | |   |  |  /\\                   / ^ \\",
+  "  / / \\ \\    \\/     |  | /  \\| |   |  |  /\\ |  |  |   |  | /  \\ |  |     | |   |  | /  \\      \\/         / / \\ \\",
+  " / / ^ \\ \\          |  |/ /\\ \\ |   |  | /  \\|  |  |   |  |/ /\\ \\|  |     | |   |  |/ /\\ \\    *   *  *   / / ^ \\ \\",
+  "/ / / \\ \\ \\         |  / /  \\ \\|   |  |/ /\\ \\  |  |   |  / /  \\ \\  |     | |   |  / /  \\ \\      *  *   / / / \\ \\ \\",
+  "/ / / ^ \\ \\\\       /^\\/ / /\\ \\ \\  /^\\ / /  \\ \\/^\\ |  /^\\/ / /\\ \\ \\ |    /^\\ |  /^\\ / /\\ \\ \\  *  **  * / / / ^ \\ \\ \\",
+  "|/_/_/_/_/_\\|     /   \\/ /  \\ \\ \\/   / / /\\ \\/   \\| /   \\/ /  \\ \\ \\|   /   \\| /   / /  \\ \\ \\**********|/_/_/_/_/_\\|",
+  "  /|   |\\        /  ^  \\/ /\\ \\ \\/  ^  / /  \\/  ^  \\/  ^  \\/ /\\ \\ \\ \\  /  ^  \\/  ^  \\/ /\\ \\  \\***********/|   |\\",
+  " / | ^ | \\      /  / \\  \\ \\ \\ \\/  / \\ \\ \\ \\/  / \\  \\ / \\  \\ \\ \\ \\ \\ \\/  / \\  \\ / \\  \\ \\ \\ \\  \\*********/ | ^ | \\",
+  "/  | | |  \\    /  / ^ \\  \\ \\ \\/  / ^ \\ \\ \\/  / ^ \\  \\ ^ \\  \\ \\ \\ \\ \\/  / ^ \\  \\ ^ \\  \\ \\ \\ \\  \\*/#\\***/  | | |  \\",
+  "/___|_|_|__\\  /  / / \\ \\  \\  /  / / \\ \\ \\/  / / \\ \\  \\ \\ \\  \\  \\ \\ /  / / \\ \\  \\ \\ \\  \\  \\ \\   /###\\//___|_|_|___\\",
+  "   | | |  _**/__/_/_/ \\_\\__\\/__/_/_/ \\_\\__\\/__/_/ \\_\\__\\ \\_\\__\\  \\/__/_/_/ \\_\\__\\ \\_\\__\\  \\/   (####)  | | | |",
+  "   | | | ///\\\\\\ | |   | |  ||  | |   | |    ||| |   | |  | |  ||    | |   | |    | |    || || (######( | | | |",
+  "   | | |////\\\\\\\\| |   | |  ||  | |   | |    ||| |   | |  | |  ||    | |   | |    | |    || || |######) | | | |",
+  "   | | ||::/\\::|| |   | |      | |   | |      | |   | |  | |  ||    | |   | |    | |    ||    (#######|| | | |",
+  "   | | ||::||::|| |   | |      | |   | |      | |   | |  | |        | |   | |    | |    ||   )########)| | | |",
+  "====|=|==|=========|=|======|=|===|=|======|=|===|=|==|=|========|=|===|=|====|=|=========|=|          |==|========",
+  ".  .      .       o         .        .       .       .          o           .       .       .  .... . .  . o .",
+  " .    .        .    .  o       .        .        .      .  .        .          .       .  ..  ..  ..  .     ..   .   ",
+  ".{<---}   .           .       .      .        .  <<-       . ->>    .       o        .     ..  ..  ..      .     . ",
+  ".{TOWN}         .         .        .       .      ||.        ||   .       .        .       .              o      . .   ",
+  "===================================================owwwwwwwwwo======================================================",
+  "   ##     /^\\    (###)    ##    /^\\    (##)   (###) ommmmmmmo  /^\\    ###    (##)   /^\\    (###)    ##    /^\\   (###)",
+  " ######  /   \\  ####### ###### /   \\  ###### ####### owwwwwo  /   \\  #####  ###### /   \\  ####### ###### /   \\ #######",
+  "########//___\\)(#######)######//___\\)(##############)ommmmmo //___\\)(#####)(######//___\\)(##############//___\\)#######",
+  " ||  ||    |     || ||   ||||    |    |||||   || ||| owwwwwo    |    ||||   |||||    |    || |||  ||||     |    || ||",
+  ";,,;;,,;,;;;,,;;,,;,;;,;;,;;,;;,;;;,,;;,;;;,;;;;,,;;,ommmmmo  ;;;,;;;,,;,;;,,;;,;;;,;;;;,,;;,;;;,;;;,,;,;;,;;;,,;;,;;",
+];
+
+export function renderColoredForestPath(): string[] {
+  const pineTop = 'text-emerald-700 font-bold';
+  const pineMid = 'text-emerald-800 font-semibold';
+  const pineDark = 'text-green-950 font-bold';
+  const trunk = 'text-amber-900 font-bold';
+  const pebble = 'text-stone-400 font-semibold';
+  const cave = 'text-stone-900 font-black';
+  const firefly = 'text-yellow-400 font-bold';
+  const bird = 'text-slate-500 font-bold';
+  const sign = 'text-amber-700 font-bold';
+  const bridge = 'text-amber-800 font-bold';
+  const water = 'text-sky-600 font-semibold';
+  const lantern = 'text-amber-400 font-bold';
+  const moss = 'text-emerald-600 font-medium';
+
+  return FOREST_PATH_RAW_LINES.map((line, idx) => {
+    let s = line
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Cave structure: replace # before any span classes that might have #
+    s = s.replace(/#+/g, (m) => `<span class="${cave}">${m}</span>`);
+
+    // Flying birds \/
+    s = s.replace(/\\\/ /g, `<span class="${bird}">\\/</span> `);
+    s = s.replace(/ \\\/$/g, ` <span class="${bird}">\\/</span>`);
+
+    // Fireflies / stars *
+    s = s.replace(/\*/g, `<span class="${firefly}">*</span>`);
+
+    // Town sign
+    s = s.replace(/\{&lt;---\}/g, `<span class="${sign}">{&lt;---}</span>`);
+    s = s.replace(/\{TOWN\}/g, `<span class="${sign}">{TOWN}</span>`);
+
+    // Bridge & stream
+    s = s.replace(
+      /owwwwwwwwwo/g,
+      `<span class="${bridge}">o</span><span class="${water}">wwwwwwwww</span><span class="${bridge}">o</span>`
+    );
+    s = s.replace(
+      /owwwwwo/g,
+      `<span class="${bridge}">o</span><span class="${water}">wwwww</span><span class="${bridge}">o</span>`
+    );
+    s = s.replace(
+      /ommmmmo/g,
+      `<span class="${bridge}">o</span><span class="${bridge}">mmmmm</span><span class="${bridge}">o</span>`
+    );
+    s = s.replace(
+      /ommmmmmmo/g,
+      `<span class="${bridge}">o</span><span class="${bridge}">mmmmmmm</span><span class="${bridge}">o</span>`
+    );
+    s = s.replace(/&lt;&lt;-/g, `<span class="${bridge}">&lt;&lt;-</span>`);
+    s = s.replace(/-&gt;&gt;/g, `<span class="${bridge}">-&gt;&gt;</span>`);
+
+    // Window lanterns ::
+    s = s.replace(/::/g, `<span class="${lantern}">::</span>`);
+
+    // Fence posts
+    if (idx === 31 || idx === 36) {
+      s = s.replace(/={3,}/g, (m) => `<span class="${trunk}">${m}</span>`);
+    }
+
+    // Ground pebbles and dots
+    if (idx >= 32 && idx <= 35) {
+      s = s.replace(/\./g, `<span class="${pebble}">.</span>`);
+      s = s.replace(/\bo\b/g, `<span class="${pebble}">o</span>`);
+    }
+
+    // Understory moss & grass on bottom line
+    if (idx === 41) {
+      s = `<span class="${moss}">${s}</span>`;
+    }
+
+    // Canopy layers by height
+    if (idx < 14) {
+      return `<span class="${pineTop}">${s}</span>`;
+    } else if (idx < 26) {
+      return `<span class="${pineMid}">${s}</span>`;
+    } else if (idx < 32) {
+      return `<span class="${pineDark}">${s}</span>`;
+    } else {
+      return `<span class="text-stone-800">${s}</span>`;
+    }
+  });
+}
+
+export const LIVING_ROOM_RAW_LINES: string[] = [
+"______________________________________________________________________________________________________________________________________________",
+  "|============================================================================================================================================|",
+  "| %  +-----------------------------+  %     %     %     %     %     %     %     %     %     %     %     %     %     %     %     %     %     %|",
+  "| %  |  ////  ||||  \\\\\\\\   ||||    |  %     %-_   %     % .--------------------------------------.%     %     %     %     %     %     %     %|",
+  "| %  |  ||||  ||||  ||||   ||||    |  %   /     \\ %     % |                                      |%     %     %     %     %     %     %     %|",
+  "| %  |  ||||  ||||  ||||   ||||  __|  %  |   |   |%     % |            /\\        ^    /\\         |%     %     % ____%_____%_____%_____%_    %|",
+  "| %  |-----------------------------|  %  |  -O   |%     % |           /  \\   /\\ / \\  /  \\        |%     %     % |______________________|    %|",
+  "| %  |   ___            ___        |  %   \\  _  / %     % |          /    \\ /  \\   \\/    \\       |%     %     %  | |         BACK  | ||     %|",
+  "| %  |  (   )   ____   [___]       |  %     ---   %     % |         /      \\    \\  /      \\      |%     %     %  | | .     OUTSIDE | ||     %|",
+  "| %  |   | |   |____|   | |        |  %     %     %     % |        /        \\    \\/        \\     |%     %     %  | |    *      .   | ||     %|",
+  "| %  |-----------------------------|  %     %     %     % |       /          \\   /          \\    |%     %     %  | |       .       | ||     %|",
+  "| %  |  ||\\/||  ||||   [][]  ||||  |  %     %     %     % |____._/____________\\_/____________\\_._|%     %     %  | | .           * | ||     %|",
+  "| %  |  ||||||  ||||   [][]  ||||  |  %     %     %     %[________________________________________]     %     %  | |      *    .   | ||     %|",
+  "| %  |  ||||||  ||||   [][]  ||||  |  %     %     %     % \\______________________________________/%     %     %  | |_______________| ||     %|",
+  "| %  |-----------------------------|  %     %     %     % \\// %     %     %     %   _.-._   %     %     %     % |______________________|    %|",
+  "| %  |                             |  %     %     %     % [o] %     %     %     %  |_|_|_|  %     %     %     %  \\___________________/      %|",
+  "| %  |   ___\\/___       _|_|_      |  %     %     % .=================================================. %     %     % ____%____ %     %     %|",
+  "| %  |  /________\\     /_____\\     |  %     %     % | [__][__][__][__][__][__][__][__][__][__][__][__]| %     %     % .'     '. %     %     %|",
+  "| %  +-----------------------------+  %     %     % | ||||||||||||||||||||||||||||||||||||||||||||||||| %     %      /         \\%     %     %|",
+  "| %     %     %     %     %     %     %     %     % |-------------------------------------------------| %     %     |           |     %     %|",
+  "| %     %     %     %     %     %     %     %     % |.-'-.-'-.-'-.-'-.-|          |.-'-.-'-.-'-.-'-.-'| %     %    /|  +-----+  |\\    %     %|",
+  "| %     %___  %     %     %     %     %     %     % |'-.-'-.-'-.-'-.-'-| '| ) |'  |'-.-'-.-'-.-'-.-.-'| %     %   / |  |     |  | \\   %     %|",
+  "| %    /__ /| %     %     %     %     %     %     % |.-'-.-'-.-'-.-'-.-| .( ( ).  |.-'-.-'-.-'-.-'-.-'| %     %  |__|__|_____|__|__|  %     %|",
+  "|_%___|____|/_%_____%_____%_____%_____%_____%_____%_|'-.-'-.-'-.-'-.-'-| '|()()'  |'-.-'-.-'-.-'-.-.-'|_%_____%___[_______________]___%_____%|",
+  "|---------------------------------------------------|.-'-.-'-.-'-.-'-.-| .()()(). |-.-'-.-'-.-'-.-'-.-|------------/ /---------\\ \\-----------|",
+  "|===================================================|__________________|_|//\\\\//|_|___________________|===========/_/===========\\_\\==========|",
+  "                                                    =====================/||||||\\======================",
+  " __________/__________________/________    _..----''''''''''''''''''''''''''''''''''''''''''''''''''----.._  __________/_________/___________",
+  "                                        .-'  ............................................................  '-.",
+  "   ______________/__________________ .'                                                                      '.  ____________________/_____",
+  "                                     / ................ /\\_/\\ ................................................  \\",
+  "        _______________/________/__ |                  ( -.- )                                                   |________/____________",
+  "                                    |  ............... _(\")(\")_ ...............................................  |",
+  "  KITCHEN    ______/_______________ \\                                                                          / ___/______________",
+  "  <<====                              '._  ..............................................................   _.'",
+  "                    ____________/______  '-..____________________________________________________________..-' ____________/___",
+];
+
+const FLAME_FRAMES: string[][] = [
+  [
+    '    )     ',
+    " '| ) |'  ",
+    ' .( ( ).  ',
+    " '|()()'  ",
+    ' .()()(). ',
+  ],
+  [
+    '   ( (    ',
+    "  |(  )|' ",
+    ' .) )(.   ',
+    "  ()()|'  ",
+    '.()()()().',
+  ],
+  [
+    '    /\\    ',
+    " '| ) (   ",
+    ' .(( )).  ',
+    "  '|()()' ",
+    ' .()()(). ',
+  ],
+  [
+    '     )    ',
+    "  |( ( '| ",
+    '  .( ) ). ',
+    " '()()|'  ",
+    '.()()()().',
+  ],
+];
+
+export function renderColoredLivingRoom(flameFrame: number = 0): string[] {
+  return LIVING_ROOM_RAW_LINES.map((line, idx) => {
+    let s = line
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Wall wallpaper '%' pattern
+    if (idx >= 2 && idx <= 23) {
+      s = s.replace(/%/g, '<span class="text-amber-700/50 font-medium">%</span>');
+    }
+
+    // Bookshelf spines & items (lines 3-17)
+    if (idx >= 3 && idx <= 17) {
+      s = s.replace(/\/\/\/\//g, '<span class="text-rose-600 font-bold">////</span>');
+      s = s.replace(/\\\\/g, (m) => `<span class="text-emerald-700 font-bold">${m}</span>`);
+      s = s.replace(/\|\|\|\|\|\|/g, '<span class="text-amber-800 font-bold">||||||</span>');
+      s = s.replace(/\|\|\|\|/g, '<span class="text-indigo-600 font-bold">||||</span>');
+      s = s.replace(/\[___\]/g, '<span class="text-amber-600 font-bold">[___]</span>');
+      s = s.replace(/\[\]\[\]/g, '<span class="text-sky-700 font-bold">[][]</span>');
+      s = s.replace(/___\/___/g, '<span class="text-emerald-600 font-bold">___\\/___</span>');
+      s = s.replace(/_\|_\|_/g, '<span class="text-amber-600 font-bold">_|_|_</span>');
+      s = s.replace(/\/________\\/g, (m) => `<span class="text-amber-800 font-semibold">${m}</span>`);
+      s = s.replace(/\/_____\\/g, (m) => `<span class="text-amber-800 font-semibold">${m}</span>`);
+    }
+
+    // Wall Clock (lines 3-9)
+    if (idx >= 3 && idx <= 9) {
+      s = s.replace(/-O/, '<span class="text-amber-500 font-black">-O</span>');
+      s = s.replace(/%-_/, '<span class="text-amber-700 font-bold">%-_</span>');
+    }
+
+    // Mountain Landscape Painting (lines 5-11)
+    if (idx >= 5 && idx <= 11) {
+      s = s.replace(/\/\s+\\/g, (m) => `<span class="text-slate-600 font-bold">${m}</span>`);
+      s = s.replace(/\/\s+\^/g, (m) => `<span class="text-sky-700 font-bold">${m}</span>`);
+      s = s.replace(/\^\s+\//g, (m) => `<span class="text-sky-700 font-bold">${m}</span>`);
+    }
+
+    // Starry Night Window on the right (lines 6-15) -> Links to Orchard
+    if (idx >= 6 && idx <= 15) {
+      if (idx === 6 || idx === 14) {
+        s = s.replace(/(\|______________________\|)/, (m) => {
+          return `<span data-window="true" role="button" tabindex="0" title="Window - Look outside into the Orchard (Click to return)" class="cursor-pointer inline-block select-none">${m}</span>`;
+        });
+      } else if (idx === 15) {
+        s = s.replace(/(\\___________________\/)/, (m) => {
+          return `<span data-window="true" role="button" tabindex="0" title="Window - Look outside into the Orchard (Click to return)" class="cursor-pointer inline-block select-none">${m}</span>`;
+        });
+      } else if (idx >= 7 && idx <= 13) {
+        s = s.replace(/\*/g, '<span class="text-yellow-400 font-bold">*</span>');
+        s = s.replace(/(\| \|)([^|]{15})(\| \|\|)/, (_, left, inner, right) => {
+          return `<span data-window="true" role="button" tabindex="0" title="Window - Look outside into the Orchard (Click to return)" class="cursor-pointer inline-block select-none">${left}${inner}${right}</span>`;
+        });
+      }
+    }
+
+    // Fireplace mantel & flames (lines 16-25)
+    if (idx >= 16 && idx <= 25) {
+      s = s.replace(/\[__\]/g, '<span class="text-stone-500 font-bold">[__]</span>');
+
+      // Animated Fireplace flames (lines 20-24)
+      if (idx >= 20 && idx <= 24) {
+        const fLine = idx - 20;
+        const currentFlame = FLAME_FRAMES[flameFrame % FLAME_FRAMES.length][fLine];
+        const flameColors = [
+          'text-yellow-300 font-extrabold', // flame tip
+          'text-amber-400 font-extrabold',  // upper flame
+          'text-orange-500 font-bold',      // mid flame
+          'text-red-500 font-bold',         // inner fire core
+          'text-orange-600 font-bold',      // base embers
+        ];
+        const colorCls = flameColors[fLine];
+
+        s = s.replace(/(\|)([ .()|'\\/]{10})(\|)/, (_, p1, _inner, p3) => {
+          return `${p1}<span class="animate-flame ${colorCls} inline-block select-none drop-shadow-[0_0_8px_rgba(249,115,22,0.85)]">${currentFlame}</span>${p3}`;
+        });
+      }
+
+      // Fire logs & glowing embers (line 25)
+      if (idx === 25) {
+        s = s.replace(/\/\/\\\\/g, '<span class="text-amber-500 font-extrabold drop-shadow-[0_0_5px_rgba(245,158,11,0.8)]">//\\\\</span>');
+      }
+    }
+
+    // Armchair / Lamp (lines 20-23)
+    if (idx >= 20 && idx <= 23) {
+      s = s.replace(/\+-----\+/, '<span class="text-rose-700 font-bold">+-----+</span>');
+      s = s.replace(/\[_______________\]/, '<span class="text-rose-800 font-bold">[_______________]</span>');
+    }
+
+    // Sleeping Cat on Rug (lines 30-32)
+    if (idx === 30) {
+      s = s.replace(
+        /\/\\_\/\\/,
+        '<span class="text-amber-700 font-black tracking-normal">/\\_/\\</span>'
+      );
+    }
+    if (idx === 31) {
+      s = s.replace(
+        /\( -.- \)/,
+        '<span class="text-amber-900 font-black tracking-normal">( -.- )</span>'
+      );
+    }
+    if (idx === 32) {
+      s = s.replace(
+        /_\("\)\("\)_/,
+        '<span class="text-amber-700 font-black tracking-normal">_(")(")_</span>'
+      );
+    }
+
+    // Rug dots '.'
+    if (idx >= 27 && idx <= 34) {
+      s = s.replace(/\.{2,}/g, (m) => `<span class="text-stone-400 font-medium">${m}</span>`);
+    }
+
+    // Floorboards
+    if (idx >= 27) {
+      s = s.replace(/_{4,}/g, (m) => `<span class="text-amber-900/60">${m}</span>`);
+      s = s.replace(/'{4,}/g, (m) => `<span class="text-stone-400 font-semibold">${m}</span>`);
+    }
+
+    // Kitchen doorway link back to farmhouse (lines 33-34)
+    if (idx >= 32 && idx <= 35) {
+      s = s
+        .replace(
+          /KITCHEN/g,
+          '<span data-kitchen="true" role="button" tabindex="0" title="Kitchen - Click to return to Farmhouse Kitchen" class="text-amber-800 hover:text-amber-600 font-bold tracking-wider cursor-pointer inline-block transition-transform hover:scale-105 active:scale-95 select-none underline decoration-amber-600/40 hover:decoration-amber-500">KITCHEN</span>'
+        )
+        .replace(
+          /(&lt;&lt;====|<<====)/g,
+          '<span data-kitchen="true" role="button" tabindex="0" title="Kitchen - Click to return to Farmhouse Kitchen" class="text-amber-700 hover:text-amber-500 font-extrabold cursor-pointer inline-block transition-all hover:-translate-x-1 active:scale-95 select-none">&lt;&lt;====</span>'
+        );
+    }
+
+    return `<span class="text-[#4a2e13] font-medium">${s}</span>`;
   });
 }

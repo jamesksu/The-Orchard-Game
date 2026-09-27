@@ -144,4 +144,51 @@
   animation: crowBob 2.5s ease-in-out infinite;
 }
 
+/* Farmhouse cat tail swishing animation */
+@keyframes catTailSwish {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(18deg) translateY(-2px) scaleX(1.1);
+  }
+  50% {
+    transform: rotate(-8deg) translateY(1px) scaleX(0.95);
+  }
+  75% {
+    transform: rotate(24deg) translateY(-3px) scaleX(1.15);
+  }
+}
+
+.animate-cat-tail {
+  display: inline-block;
+  transform-origin: 0% 100%;
+  animation: catTailSwish 2.2s ease-in-out infinite;
+}
+
+/* Living room fireplace flames animation */
+@keyframes flameFlicker {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+    filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.7));
+  }
+  25% {
+    transform: translateY(-0.5px) scaleY(1.04) scaleX(0.98);
+    filter: drop-shadow(0 0 7px rgba(239, 68, 68, 0.8));
+  }
+  50% {
+    transform: translateY(0.5px) scaleY(0.97) scaleX(1.02);
+    filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.6));
+  }
+  75% {
+    transform: translateY(-1px) scaleY(1.06) scaleX(1);
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9));
+  }
+}
+
+.animate-flame {
+  display: inline-block;
+  animation: flameFlicker 0.45s ease-in-out infinite alternate;
+}
+
 

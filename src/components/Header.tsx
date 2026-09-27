@@ -1,6 +1,7 @@
 import React from 'react';
 import { FruitType, Plot, Season } from '../types';
 import { PRODUCE_CATALOG, ALL_FRUIT_TYPES } from '../constants/produce';
+import { CRAFTING_RECIPES } from '../constants/gameData';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 interface HeaderProps {
@@ -21,6 +22,10 @@ interface HeaderProps {
   weatherText?: string;
   hasFirstApple?: boolean;
   hasTruckKey?: boolean;
+  onOpenTractorMan?: () => void;
+  onOpenMainStreet?: () => void;
+  onOpenForestPath?: () => void;
+  juiceInventory?: Record<string, number>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -41,6 +46,10 @@ export const Header: React.FC<HeaderProps> = ({
   weatherText,
   hasFirstApple,
   hasTruckKey = false,
+  onOpenTractorMan,
+  onOpenMainStreet,
+  onOpenForestPath,
+  juiceInventory = {},
 }) => {
   const visibleItems = ALL_FRUIT_TYPES.filter((type) => {
     if (type === 'apple') return true;
@@ -91,6 +100,39 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
           </div>
+
+          {onOpenTractorMan && (
+            <button
+              onClick={onOpenTractorMan}
+              className="text-[11px] font-mono font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 active:scale-95 border border-amber-300 rounded px-2 py-0.5 shadow-2xs transition-colors cursor-pointer flex items-center gap-1"
+              title="Go directly to TractorMan (Test shortcut)"
+            >
+              <span>🚜</span>
+              <span>TractorMan</span>
+            </button>
+          )}
+
+          {onOpenMainStreet && (
+            <button
+              onClick={onOpenMainStreet}
+              className="text-[11px] font-mono font-bold text-sky-900 bg-sky-100 hover:bg-sky-200 active:scale-95 border border-sky-300 rounded px-2 py-0.5 shadow-2xs transition-colors cursor-pointer flex items-center gap-1"
+              title="Go directly to Main Street"
+            >
+              <span>🏘️</span>
+              <span>Main Street</span>
+            </button>
+          )}
+
+          {onOpenForestPath && (
+            <button
+              onClick={onOpenForestPath}
+              className="text-[11px] font-mono font-bold text-emerald-900 bg-emerald-100 hover:bg-emerald-200 active:scale-95 border border-emerald-300 rounded px-2 py-0.5 shadow-2xs transition-colors cursor-pointer flex items-center gap-1"
+              title="Go directly to Forest Path"
+            >
+              <span>🌲</span>
+              <span>Forest Path</span>
+            </button>
+          )}
 
           <button
             onClick={onResetGame}
@@ -169,6 +211,19 @@ export const Header: React.FC<HeaderProps> = ({
                     {count}
                   </span>
                   {idx < visibleItems.length - 1 && <span className="mr-1">,</span>}
+                </span>
+              );
+            })}
+            {Object.entries(juiceInventory).map(([recipeId, count]) => {
+              if (count <= 0) return null;
+              const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
+              const label = recipe ? recipe.outputName : recipeId;
+              return (
+                <span key={recipeId} className="inline-flex items-center text-amber-900 font-semibold ml-0.5">
+                  <span className="mr-0.5">🧃</span>
+                  <span>{label}:</span>
+                  <span className="font-bold ml-1 tabular-nums">{count}</span>
+                  <span className="mr-1">,</span>
                 </span>
               );
             })}

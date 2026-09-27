@@ -8,12 +8,14 @@ interface MarketResearchModalProps {
   isOpen: boolean;
   currentSeason: Season;
   onClose: () => void;
+  fontScale?: number;
 }
 
 export const MarketResearchModal: React.FC<MarketResearchModalProps> = ({
   isOpen,
   currentSeason,
   onClose,
+  fontScale = 1,
 }) => {
   const [filterCategory, setFilterCategory] = useState<'all' | 'tree' | 'bush'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -124,7 +126,7 @@ export const MarketResearchModal: React.FC<MarketResearchModalProps> = ({
         {/* Header ASCII Banner */}
         <div className="w-full overflow-x-auto flex justify-center ascii-scroll mb-3">
           <pre
-            style={{ fontSize: '0.75rem', lineHeight: '1.2' }}
+            style={{ fontSize: `${0.75 * fontScale}rem`, lineHeight: '1.2' }}
             className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight select-none text-center inline-block min-w-max"
           >
             <span className="text-[#b45309] font-bold">

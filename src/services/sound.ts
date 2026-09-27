@@ -308,6 +308,35 @@ class SoundEffectsService {
       // Audio fallback
     }
   }
+
+  public playCatPurr(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      // Gentle soft meow: upward then gentle downward pitch
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(440, now + 0.38);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.16 * this.volume, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.45);
+    } catch {
+      // Audio fallback
+    }
+  }
 }
 
 export const SoundEngine = new SoundEffectsService();

@@ -9,6 +9,7 @@ interface PlantModalProps {
   plot: Plot | null;
   money: number;
   onPlantTree: (plotId: number, type: FruitType) => void;
+  fontScale?: number;
 }
 
 const CATEGORIES = [
@@ -22,6 +23,7 @@ export const PlantModal: React.FC<PlantModalProps> = ({
   plot,
   money,
   onPlantTree,
+  fontScale = 1,
 }) => {
   if (!isOpen || !plot) return null;
 
@@ -76,7 +78,13 @@ export const PlantModal: React.FC<PlantModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs select-none">
-      <div className="bg-[#fcfbf9] border border-stone-300 rounded-xl shadow-2xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+      <div
+        style={{
+          transform: fontScale !== 1 ? `scale(${fontScale})` : undefined,
+          transformOrigin: 'center center',
+        }}
+        className="bg-[#fcfbf9] border border-stone-300 rounded-xl shadow-2xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden transition-transform duration-150"
+      >
         {/* Modal Header */}
         <div className="p-4 border-b border-stone-200 flex items-center justify-between bg-stone-100/70">
           <div>

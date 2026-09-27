@@ -5,9 +5,14 @@ import { SoundEngine } from '../services/sound';
 interface WelcomeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  fontScale?: number;
 }
 
-export const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose }) => {
+export const WelcomeModal: React.FC<WelcomeModalProps> = ({
+  isOpen,
+  onClose,
+  fontScale = 1,
+}) => {
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,7 +52,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ isOpen, onClose }) =
       >
         <div className="w-full overflow-x-auto flex justify-center ascii-scroll">
           <pre
-            style={{ fontSize: '0.85rem', lineHeight: '1.24' }}
+            style={{ fontSize: `${0.85 * fontScale}rem`, lineHeight: '1.24' }}
             className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight select-none text-center inline-block min-w-max"
             dangerouslySetInnerHTML={{ __html: plaqueLines.join('\n') }}
           />

@@ -1,109 +1,108 @@
-import React, { useState } from 'react';
-import { renderColoredTractorMan } from '../services/asciiArt';
+import React, { useState, useEffect } from 'react';
+import {
+  renderColoredTractorMan,
+  renderTractorManIntroPlaque,
+  renderTractorManServicesPlaque,
+} from '../services/asciiArt';
 import { SoundEngine } from '../services/sound';
-import { ArrowLeft, Store, Volume2 } from 'lucide-react';
 
 interface TractorManViewProps {
   onBackToMarket: () => void;
-  onBackToOrchard: () => void;
+  onBackToOrchard?: () => void;
+  hasSeenIntro?: boolean;
+  onMarkIntroSeen?: () => void;
+  fontScale?: number;
 }
-
-const TRACTORMAN_QUOTES = [
-  "Mornin'! The crow tipped me off that you'd be wanderin' back this way.",
-  "That roadside stand of yours has quite a buzz goin' down the highway. $100 in fruit is quite a fine start!",
-  "She’s an old two-cylinder diesel. Purrs like a lion when the morning dew burns off.",
-  "They say I was out here plowin' these fields before the ditch was dug and before the highway was paved.",
-  "Nothin' beats the smell of freshly turned black soil under an autumn sky.",
-  "Keep tendin' those trees. A good orchard outlasts every storm.",
-];
 
 export const TractorManView: React.FC<TractorManViewProps> = ({
   onBackToMarket,
-  onBackToOrchard,
+  hasSeenIntro,
+  onMarkIntroSeen,
+  fontScale = 1,
 }) => {
-  const [quoteIndex, setQuoteIndex] = useState(0);
-  const [scale, setScale] = useState(1);
-  const tractorLines = renderColoredTractorMan();
+  const [showIntroModal, setShowIntroModal] = useState<boolean>(() => {
+    // Clear any stale blocking sessionStorage or localStorage keys from prior sessions
+    try {
+      sessionStorage.removeItem('orchard_tractorman_intro_seen');
+      localStorage.removeItem('orchard_tractorman_intro_seen');
+    } catch {}
+    if (typeof hasSeenIntro === 'boolean') {
+      return !hasSeenIntro;
+    }
+    return true;
+  });
+  const [showServicesModal, setShowServicesModal] = useState<boolean>(false);
 
-  const handleTractorClick = () => {
-    SoundEngine.playTractorRev();
-    setQuoteIndex((prev) => (prev + 1) % TRACTORMAN_QUOTES.length);
+  const tractorLines = renderColoredTractorMan();
+  const introPlaqueLines = renderTractorManIntroPlaque();
+  const servicesPlaqueLines = renderTractorManServicesPlaque();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+        if (showIntroModal) {
+          handleDismissIntro();
+        } else if (showServicesModal) {
+          handleDismissServices();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showIntroModal, showServicesModal]);
+
+  const handleDismissIntro = () => {
+    SoundEngine.playRustle();
+    setShowIntroModal(false);
+    onMarkIntroSeen?.();
+  };
+
+  const handleDismissServices = () => {
+    SoundEngine.playRustle();
+    setShowServicesModal(false);
+  };
+
+  const handleTractorClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+
+    // Check if clicked the crow on the exhaust stack
+    if (
+      target.closest('[data-crow]') ||
+      target.getAttribute('data-crow') === 'true' ||
+      target.textContent?.includes('(>o)') ||
+      target.textContent?.includes('>(o)')
+    ) {
+      SoundEngine.playCrowCall();
+      onBackToMarket();
+      return;
+    }
+
+    // Check if clicked TractorMan on the right side
+    if (
+      target.closest('[data-tractorman]') ||
+      target.getAttribute('data-tractorman') === 'true'
+    ) {
+      SoundEngine.playPluck(1.3);
+      setShowServicesModal(true);
+      return;
+    }
   };
 
   return (
     <div className="w-full flex flex-col items-center select-none animate-fade-in pb-8">
-      {/* Top Navigation Bar */}
-      <div className="w-full max-w-5xl flex flex-wrap items-center justify-between gap-3 mb-3 px-2">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              SoundEngine.playPluck(1.2);
-              onBackToMarket();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white text-xs font-mono font-bold rounded shadow-2xs transition-colors cursor-pointer"
-            title="Return to the Roadside Stand"
-          >
-            <Store className="w-3.5 h-3.5" />
-            Back to Market Stand
-          </button>
-          <button
-            onClick={() => {
-              SoundEngine.playPluck(1.1);
-              onBackToOrchard();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-mono font-medium rounded transition-colors cursor-pointer"
-            title="Return to the Orchard plots"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Orchard
-          </button>
-        </div>
-
-        {/* Story Title & Rev Button */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleTractorClick}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-800 hover:bg-stone-900 active:scale-95 text-amber-400 text-xs font-mono font-bold rounded shadow-2xs transition-all cursor-pointer"
-            title="Rev the Tractor Engine!"
-          >
-            <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-            <span>Rev Engine</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Quote Banner */}
-      <div
-        onClick={handleTractorClick}
-        className="w-full max-w-5xl bg-[#fbf9f4] border border-amber-900/20 rounded-lg p-3 mb-3 flex items-start gap-3 cursor-pointer hover:bg-[#faf6ee] transition-colors shadow-2xs font-mono"
-        title="Click to talk with TractorMan"
-      >
-        <span className="text-xl leading-none">🚜</span>
-        <div className="flex-1">
-          <div className="text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-2">
-            <span>TractorMan</span>
-            <span className="text-[10px] text-stone-400 font-normal">(Click anywhere on tractor to chat)</span>
-          </div>
-          <p className="text-xs text-stone-800 font-medium italic mt-0.5">
-            "{TRACTORMAN_QUOTES[quoteIndex]}"
-          </p>
-        </div>
-      </div>
-
       {/* Main ASCII Canvas for TractorMan */}
-      <div className="w-full bg-[#f5f2eb] p-3 sm:p-5 overflow-x-auto ascii-scroll flex justify-center items-start rounded-lg border border-stone-300/80 shadow-inner">
+      <div className="w-full bg-[#f5f2eb] p-3 sm:p-5 overflow-x-auto ascii-scroll flex justify-center items-start">
         <div
           onClick={handleTractorClick}
-          role="button"
-          tabIndex={0}
-          title="TractorMan & his ancient two-cylinder rig (Click to rev engine)"
-          className="select-none cursor-pointer inline-block text-left group hover:brightness-105 active:scale-[0.995] transition-all"
+          role="region"
+          aria-label="TractorMan scene"
+          className="select-none inline-block text-left"
         >
           <pre
             className="font-mono leading-none select-none m-0 p-0"
             style={{
-              fontSize: `${0.85 * scale}rem`,
-              lineHeight: `${0.95 * scale}rem`,
+              fontSize: `${0.85 * fontScale}rem`,
+              lineHeight: `${0.95 * fontScale}rem`,
             }}
           >
             {tractorLines.map((line, idx) => (
@@ -112,6 +111,68 @@ export const TractorManView: React.FC<TractorManViewProps> = ({
           </pre>
         </div>
       </div>
+
+      {/* First-Open Introduction Pop-up Plaque Modal */}
+      {showIntroModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-xs select-none animate-fade-in"
+          onClick={handleDismissIntro}
+          role="dialog"
+          aria-modal="true"
+          aria-label="TractorMan Introduction Plaque"
+        >
+          <div
+            className="bg-[#fbf9f4] border border-stone-300 rounded-xl shadow-2xl p-4 sm:p-6 max-w-2xl w-full max-h-[88vh] overflow-y-auto flex flex-col items-center cursor-pointer transition-transform hover:scale-[1.005] active:scale-[0.995]"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDismissIntro();
+            }}
+            title="Click anywhere to continue"
+          >
+            <div className="w-full overflow-x-auto flex justify-center ascii-scroll">
+              <pre
+                style={{ fontSize: `${0.85 * fontScale}rem`, lineHeight: '1.24' }}
+                className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight select-none text-center inline-block min-w-max"
+                dangerouslySetInnerHTML={{ __html: introPlaqueLines.join('\n') }}
+              />
+            </div>
+            <div className="mt-3 text-xs font-mono text-stone-500 flex items-center gap-1.5">
+              <span>(Click anywhere or press Enter/Space to continue)</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Services Pop-up Plaque Modal (When clicking TractorMan on the right side) */}
+      {showServicesModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-xs select-none animate-fade-in"
+          onClick={handleDismissServices}
+          role="dialog"
+          aria-modal="true"
+          aria-label="TractorMan Services Plaque"
+        >
+          <div
+            className="bg-[#fbf9f4] border border-stone-300 rounded-xl shadow-2xl p-4 sm:p-6 max-w-2xl w-full max-h-[88vh] overflow-y-auto flex flex-col items-center cursor-pointer transition-transform hover:scale-[1.005] active:scale-[0.995]"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDismissServices();
+            }}
+            title="Click anywhere to close notice"
+          >
+            <div className="w-full overflow-x-auto flex justify-center ascii-scroll">
+              <pre
+                style={{ fontSize: `${0.85 * fontScale}rem`, lineHeight: '1.24' }}
+                className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight select-none text-center inline-block min-w-max"
+                dangerouslySetInnerHTML={{ __html: servicesPlaqueLines.join('\n') }}
+              />
+            </div>
+            <div className="mt-3 text-xs font-mono text-stone-500 flex items-center gap-1.5">
+              <span>(Click anywhere or press Enter/Space to continue)</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

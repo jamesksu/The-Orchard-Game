@@ -5,11 +5,13 @@ import { SoundEngine } from '../services/sound';
 interface MarketWelcomeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  fontScale?: number;
 }
 
 export const MarketWelcomeModal: React.FC<MarketWelcomeModalProps> = ({
   isOpen,
   onClose,
+  fontScale = 1,
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -50,7 +52,7 @@ export const MarketWelcomeModal: React.FC<MarketWelcomeModalProps> = ({
       >
         <div className="w-full overflow-x-auto flex justify-center ascii-scroll">
           <pre
-            style={{ fontSize: '0.85rem', lineHeight: '1.24' }}
+            style={{ fontSize: `${0.85 * fontScale}rem`, lineHeight: '1.24' }}
             className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight select-none text-center inline-block min-w-max"
             dangerouslySetInnerHTML={{ __html: plaqueLines.join('\n') }}
           />

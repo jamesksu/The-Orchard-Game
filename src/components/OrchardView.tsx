@@ -7,6 +7,8 @@ import {
   renderTreePlot,
   renderEmptyPlowedPlot,
   renderOvergrownPlot,
+  renderBlockedForestPath,
+  renderOpenForestPath,
 } from '../services/asciiArt';
 import { SoundEngine } from '../services/sound';
 
@@ -29,6 +31,9 @@ interface OrchardViewProps {
   hasTruckKey: boolean;
   onCollectTruckKey: (e: React.MouseEvent) => void;
   onAttemptLockedTruck: () => void;
+  hasVisitedTractorMan?: boolean;
+  hasClearedBlockedPath?: boolean;
+  onOpenBlockedPath?: () => void;
 }
 
 export const OrchardView: React.FC<OrchardViewProps> = ({
@@ -50,6 +55,9 @@ export const OrchardView: React.FC<OrchardViewProps> = ({
   hasTruckKey,
   onCollectTruckKey,
   onAttemptLockedTruck,
+  hasVisitedTractorMan = false,
+  hasClearedBlockedPath = false,
+  onOpenBlockedPath,
 }) => {
   const [smokeFrame, setSmokeFrame] = useState(0);
   const [swingFrame, setSwingFrame] = useState(0);
@@ -111,7 +119,9 @@ export const OrchardView: React.FC<OrchardViewProps> = ({
 
   const showLadder = !hasLadder;
   const farmhouseLines = renderFarmhouse(smokeFrame, showLadder);
-  const swingsetLines = renderSwingset(swingFrame);
+  const swingsetLines = renderSwingset(swingFrame, hasVisitedTractorMan);
+  const blockedPathLines = renderBlockedForestPath();
+  const openPathLines = renderOpenForestPath();
   const truckLines = renderTruck();
 
   const textStyle: React.CSSProperties = {
@@ -131,28 +141,63 @@ export const OrchardView: React.FC<OrchardViewProps> = ({
         <div className="w-max mx-auto flex flex-col items-center">
           {/* Farm Buildings Header Row: Swingset, Farmhouse, Old Farm Truck */}
           <div className="flex items-end justify-center gap-1.5 sm:gap-3 mb-2">
-            {/* Swingset */}
-            <div
-              title="Orchard Swingset - Swaying gently in the breeze"
-              className="relative inline-block select-none"
-            >
-              {!hasTruckKey && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCollectTruckKey(e);
+            {/* Left Column: Blocked Forest Path (if TractorMan visited) + Swingset */}
+            <div className="flex flex-col items-start justify-end select-none">
+              {hasVisitedTractorMan && (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    SoundEngine.playRustle();
+                    onOpenBlockedPath?.();
                   }}
-                  aria-label="Small patch of grass"
-                  title="Small patch of grass"
-                  className="absolute left-0 bottom-0 w-14 sm:w-16 h-8 sm:h-10 cursor-pointer z-20 focus:outline-hidden"
-                />
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      SoundEngine.playRustle();
+                      onOpenBlockedPath?.();
+                    }
+                  }}
+                  title={
+                    hasClearedBlockedPath
+                      ? 'Forest Path - A winding stone trail leads north through the woods (Click to inspect)'
+                      : 'Blocked Forest Path - Thick tangled branches and heavy timber block the old trail north (Click to clear path)'
+                  }
+                  className="cursor-pointer group hover:brightness-110 active:scale-95 transition-all text-center select-none"
+                >
+                  <pre
+                    style={textStyle}
+                    className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight select-none"
+                    dangerouslySetInnerHTML={{
+                      __html: (hasClearedBlockedPath ? openPathLines : blockedPathLines).join('\n'),
+                    }}
+                  />
+                </div>
               )}
-              <pre
-                style={textStyle}
-                className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight"
-                dangerouslySetInnerHTML={{ __html: swingsetLines.join('\n') }}
-              />
+
+              {/* Swingset */}
+              <div
+                title="Orchard Swingset - Swaying gently in the breeze"
+                className="relative inline-block select-none"
+              >
+                {!hasTruckKey && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCollectTruckKey(e);
+                    }}
+                    aria-label="Small patch of grass"
+                    title="Small patch of grass"
+                    className="absolute left-0 bottom-0 w-14 sm:w-16 h-8 sm:h-10 cursor-pointer z-20 focus:outline-hidden"
+                  />
+                )}
+                <pre
+                  style={textStyle}
+                  className="font-mono text-stone-800 m-0 p-0 font-medium tracking-tight"
+                  dangerouslySetInnerHTML={{ __html: swingsetLines.join('\n') }}
+                />
+              </div>
             </div>
 
             {/* Farmhouse & Leaning Ladder */}
@@ -171,7 +216,7 @@ export const OrchardView: React.FC<OrchardViewProps> = ({
 
               <div
                 onClick={onOpenFarmhouse}
-                title="Rustic Farmhouse - Click to enter Cider Press & Pantry"
+                title="Rustic Farmhouse - Click to enter Living Room"
                 className="inline-block select-none cursor-pointer hover:brightness-110 active:scale-[0.99] transition-all"
               >
                 <pre

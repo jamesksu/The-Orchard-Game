@@ -21,6 +21,7 @@ interface MarketStandViewProps {
   season: Season;
   lifetimeMoney?: number;
   onOpenTractorMan?: () => void;
+  fontScale?: number;
 }
 
 export const MarketStandView: React.FC<MarketStandViewProps> = ({
@@ -38,6 +39,7 @@ export const MarketStandView: React.FC<MarketStandViewProps> = ({
   season,
   lifetimeMoney = 0,
   onOpenTractorMan,
+  fontScale = 1,
 }) => {
   const [selectedProduce, setSelectedProduce] = useState<FruitType | null>(null);
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
@@ -198,8 +200,8 @@ export const MarketStandView: React.FC<MarketStandViewProps> = ({
               <pre
                 className="font-mono leading-none select-none m-0 p-0"
                 style={{
-                  fontSize: '0.85rem',
-                  lineHeight: '0.95rem',
+                  fontSize: `${0.85 * fontScale}rem`,
+                  lineHeight: `${0.95 * fontScale}rem`,
                 }}
               >
                 {researchBoardLines.map((line, idx) => (
@@ -212,8 +214,8 @@ export const MarketStandView: React.FC<MarketStandViewProps> = ({
               <pre
                 className="font-mono leading-none select-none m-0 p-0"
                 style={{
-                  fontSize: '0.85rem',
-                  lineHeight: '0.95rem',
+                  fontSize: `${0.85 * fontScale}rem`,
+                  lineHeight: `${0.95 * fontScale}rem`,
                 }}
               >
                 {signpostGrassLines.map((line, idx) => (
@@ -228,8 +230,8 @@ export const MarketStandView: React.FC<MarketStandViewProps> = ({
             <pre
               className="font-mono leading-none select-none m-0 p-0"
               style={{
-                fontSize: '0.85rem',
-                lineHeight: '0.95rem',
+                fontSize: `${0.85 * fontScale}rem`,
+                lineHeight: `${0.95 * fontScale}rem`,
               }}
             >
               {standLines.map((line, idx) => (
@@ -256,6 +258,7 @@ export const MarketStandView: React.FC<MarketStandViewProps> = ({
           onUpdatePrice={(p) => onUpdateAskingPrice(activeProduceInfo.type, p)}
           onToggleAutoSell={() => onToggleAutoSell(activeProduceInfo.type)}
           onClose={() => setIsPriceModalOpen(false)}
+          fontScale={fontScale}
         />
       )}
 
@@ -264,6 +267,7 @@ export const MarketStandView: React.FC<MarketStandViewProps> = ({
         isOpen={isResearchModalOpen}
         currentSeason={season}
         onClose={() => setIsResearchModalOpen(false)}
+        fontScale={fontScale}
       />
     </div>
   );

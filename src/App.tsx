@@ -30,14 +30,18 @@ import { MarketStandView } from './components/MarketStandView';
 import { UpgradesModal } from './components/UpgradesModal';
 import { LedgerModal } from './components/LedgerModal';
 import { PlantModal } from './components/PlantModal';
-import { CiderPressModal } from './components/CiderPressModal';
+import { FarmhouseFruitJuicerModal } from './components/FarmhouseFruitJuicerModal';
 import { WelcomeModal } from './components/WelcomeModal';
 import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { UnreachableApplesModal } from './components/UnreachableApplesModal';
 import { TruckKeysModal } from './components/TruckKeysModal';
 import { MarketWelcomeModal } from './components/MarketWelcomeModal';
 import { FiftyDollarMilestoneModal } from './components/FiftyDollarMilestoneModal';
+import { BlockedPathModal } from './components/BlockedPathModal';
 import { TractorManView } from './components/TractorManView';
+import { MainStreetView } from './components/MainStreetView';
+import { ForestPathView } from './components/ForestPathView';
+import { LivingRoomView } from './components/LivingRoomView';
 import { FloatingParticles } from './components/FloatingParticles';
 
 const SAVE_KEY = 'ascii_orchard_save_v1';
@@ -53,11 +57,44 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('orchard');
   const [plantingPlot, setPlantingPlot] = useState<Plot | null>(null);
   const [isCiderPressOpen, setIsCiderPressOpen] = useState(false);
+  const [juiceInventory, setJuiceInventory] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.juiceInventory && typeof data.juiceInventory === 'object') {
+          return data.juiceInventory;
+        }
+      }
+    } catch {}
+    return {};
+  });
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isUnreachableModalOpen, setIsUnreachableModalOpen] = useState(false);
   const [isTruckModalOpen, setIsTruckModalOpen] = useState(false);
   const [hasLadder, setHasLadder] = useState(false);
   const [hasTruckKey, setHasTruckKey] = useState(false);
+  const [hasVisitedTractorMan, setHasVisitedTractorMan] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (typeof data.hasVisitedTractorMan === 'boolean') return data.hasVisitedTractorMan;
+      }
+    } catch {}
+    return false;
+  });
+  const [hasClearedBlockedPath, setHasClearedBlockedPath] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (typeof data.hasClearedBlockedPath === 'boolean') return data.hasClearedBlockedPath;
+      }
+    } catch {}
+    return false;
+  });
+  const [isBlockedPathModalOpen, setIsBlockedPathModalOpen] = useState(false);
   const [isWelcomeOpen, setIsWelcomeOpen] = useState<boolean>(() => {
     try {
       return localStorage.getItem('ascii_orchard_welcome_seen') !== 'true';
@@ -83,6 +120,13 @@ export default function App() {
     }
   });
   const [isMarketWelcomeOpen, setIsMarketWelcomeOpen] = useState(false);
+  const [hasTractorManIntroSeen, setHasTractorManIntroSeen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (activeTab === 'tractorman' && !hasVisitedTractorMan) {
+      setHasVisitedTractorMan(true);
+    }
+  }, [activeTab, hasVisitedTractorMan]);
 
   useEffect(() => {
     if (activeTab === 'market' && !hasMarketWelcomeSeen) {
@@ -101,7 +145,23 @@ export default function App() {
   };
 
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [fontScale, setFontScale] = useState(1);
+  const [fontScale, setFontScale] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('orchard_font_scale');
+      if (saved) {
+        const val = parseFloat(saved);
+        if (!isNaN(val) && val >= 0.5 && val <= 2) return val;
+      }
+    } catch {}
+    return 1;
+  });
+
+  const handleSetFontScale = (scale: number) => {
+    setFontScale(scale);
+    try {
+      localStorage.setItem('orchard_font_scale', scale.toString());
+    } catch {}
+  };
 
   // Core Game State
   const [basket, setBasket] = useState<Record<FruitType, number>>(() => createProduceMap(() => 0));
@@ -195,6 +255,9 @@ export default function App() {
         if (typeof data.lifetimeMoney === 'number') setLifetimeMoney(data.lifetimeMoney);
         if (typeof data.totalClicks === 'number') setTotalClicks(data.totalClicks);
         if (typeof data.cidersPressed === 'number') setCidersPressed(data.cidersPressed);
+        if (data.juiceInventory && typeof data.juiceInventory === 'object') {
+          setJuiceInventory(data.juiceInventory);
+        }
         if (typeof data.gameHours === 'number') setGameHours(data.gameHours);
         if (typeof data.hasLadder === 'boolean') {
           setHasLadder(data.hasLadder);
@@ -203,6 +266,12 @@ export default function App() {
         }
         if (typeof data.hasTruckKey === 'boolean') {
           setHasTruckKey(data.hasTruckKey);
+        }
+        if (typeof data.hasVisitedTractorMan === 'boolean') {
+          setHasVisitedTractorMan(data.hasVisitedTractorMan);
+        }
+        if (typeof data.hasClearedBlockedPath === 'boolean') {
+          setHasClearedBlockedPath(data.hasClearedBlockedPath);
         }
         if (typeof data.hasFiftyMilestoneSeen === 'boolean') {
           setHasFiftyMilestoneSeen(data.hasFiftyMilestoneSeen);
@@ -246,9 +315,12 @@ export default function App() {
           lifetimeMoney,
           totalClicks,
           cidersPressed,
+          juiceInventory,
           gameHours,
           soundEnabled,
           hasFiftyMilestoneSeen,
+          hasVisitedTractorMan,
+          hasClearedBlockedPath,
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
       } catch {
@@ -607,26 +679,35 @@ export default function App() {
     [upgrades, money, spawnParticle]
   );
 
-  // Craft artisanal ciders & cordials
+  // Craft artisanal juices in Farmhouse Fruit Juicer
   const handleCraftProduct = useCallback(
     (recipe: CraftRecipe, quantity: number) => {
-      const neededFruit = recipe.fruitRequired * quantity;
-      if ((basket[recipe.fruitType] || 0) < neededFruit) return;
+      if (quantity <= 0) return;
+      const canCraft = recipe.ingredients.every(
+        (ing) => (basket[ing.fruitType] || 0) >= ing.amount * quantity
+      );
+      if (!canCraft) return;
 
-      const revenue = recipe.bottleValue * quantity;
       SoundEngine.playPress();
-      SoundEngine.playCoin();
+      SoundEngine.playPluck(1.4);
 
-      setBasket((prev) => ({
+      setBasket((prev) => {
+        const next = { ...prev };
+        recipe.ingredients.forEach((ing) => {
+          next[ing.fruitType] = Math.max(0, (next[ing.fruitType] || 0) - ing.amount * quantity);
+        });
+        return next;
+      });
+
+      setJuiceInventory((prev) => ({
         ...prev,
-        [recipe.fruitType]: prev[recipe.fruitType] - neededFruit,
+        [recipe.id]: (prev[recipe.id] || 0) + quantity,
       }));
-      setMoney((m) => m + revenue);
-      setLifetimeMoney((m) => m + revenue);
+
       setCidersPressed((c) => c + quantity);
 
-      spawnParticle(`+${quantity} ${recipe.outputName}! +$${revenue}`, window.innerWidth / 2, 200, '#d97706', true);
-      checkAchievements(basket, money + revenue, plots, cidersPressed + quantity, lifetimeFruits);
+      spawnParticle(`+${quantity} ${recipe.outputName} added to inventory! 🧃`, window.innerWidth / 2, 200, '#d97706', true);
+      checkAchievements(basket, money, plots, cidersPressed + quantity, lifetimeFruits);
     },
     [basket, money, plots, cidersPressed, lifetimeFruits, checkAchievements, spawnParticle]
   );
@@ -779,6 +860,10 @@ export default function App() {
     setIsTruckModalOpen(false);
     setHasMarketWelcomeSeen(false);
     setIsMarketWelcomeOpen(false);
+    setHasTractorManIntroSeen(false);
+    setHasVisitedTractorMan(false);
+    setHasClearedBlockedPath(false);
+    setIsBlockedPathModalOpen(false);
     setHasFiftyMilestoneSeen(false);
     setIsFiftyMilestoneOpen(false);
     setBasket(createProduceMap(() => 0));
@@ -793,6 +878,7 @@ export default function App() {
     setLifetimeMoney(0);
     setTotalClicks(0);
     setCidersPressed(0);
+    setJuiceInventory({});
     setGameHours(0);
     try {
       localStorage.removeItem('ascii_orchard_welcome_seen');
@@ -822,9 +908,12 @@ export default function App() {
       lifetimeMoney,
       totalClicks,
       cidersPressed,
+      juiceInventory,
       gameHours,
       soundEnabled,
       hasFiftyMilestoneSeen,
+      hasVisitedTractorMan,
+      hasClearedBlockedPath,
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
     SoundEngine.playCoin();
@@ -932,12 +1021,16 @@ export default function App() {
           hour={currentHour}
           money={money}
           fontScale={fontScale}
-          setFontScale={setFontScale}
+          setFontScale={handleSetFontScale}
           onResetGame={handleRequestReset}
           soundEnabled={soundEnabled}
           onToggleSound={handleToggleSound}
           weatherText={weatherText}
           hasFirstApple={hasFirstApple}
+          onOpenTractorMan={() => setActiveTab('tractorman')}
+          onOpenMainStreet={() => setActiveTab('mainstreet')}
+          onOpenForestPath={() => setActiveTab('forestpath')}
+          juiceInventory={juiceInventory}
         />
 
         {/* Tab Views */}
@@ -949,7 +1042,7 @@ export default function App() {
             onHarvestPlot={handleHarvestPlot}
             onUnlockPlot={handleUnlockPlot}
             onPlantPlot={(plot) => setPlantingPlot(plot)}
-            onOpenFarmhouse={() => setActiveTab('farmhouse')}
+            onOpenFarmhouse={() => setActiveTab('livingroom')}
             onHarvestAll={handleHarvestAll}
             shakingPlotId={shakingPlotId}
             fontScale={fontScale}
@@ -967,6 +1060,18 @@ export default function App() {
               SoundEngine.playRustle();
               setIsTruckModalOpen(true);
             }}
+            hasVisitedTractorMan={hasVisitedTractorMan}
+            hasClearedBlockedPath={hasClearedBlockedPath}
+            onOpenBlockedPath={() => {
+              if (!hasClearedBlockedPath) {
+                setHasClearedBlockedPath(true);
+                SoundEngine.playFanfare();
+                spawnParticle('Path Cleared! 🌲', window.innerWidth / 2, 120, '#15803d');
+              } else {
+                SoundEngine.playRustle();
+              }
+              setIsBlockedPathModalOpen(true);
+            }}
           />
         )}
 
@@ -974,6 +1079,16 @@ export default function App() {
           <FarmhouseInterior
             onBack={() => setActiveTab('orchard')}
             onOpenCiderPress={() => setIsCiderPressOpen(true)}
+            onOpenLivingRoom={() => setActiveTab('livingroom')}
+            fontScale={fontScale}
+          />
+        )}
+
+        {activeTab === 'livingroom' && (
+          <LivingRoomView
+            onBackToFarmhouse={() => setActiveTab('farmhouse')}
+            onBackToOrchard={() => setActiveTab('orchard')}
+            fontScale={fontScale}
           />
         )}
 
@@ -985,6 +1100,7 @@ export default function App() {
               upgrades={upgrades}
               money={money}
               onBuyUpgrade={handleBuyUpgrade}
+              fontScale={fontScale}
             />
           </div>
         )}
@@ -1005,6 +1121,7 @@ export default function App() {
             onToggleAutoSell={handleToggleAutoSell}
             onToggleAllAutoSell={handleToggleAllAutoSell}
             season={currentSeason}
+            fontScale={fontScale}
           />
         )}
 
@@ -1012,6 +1129,25 @@ export default function App() {
           <TractorManView
             onBackToMarket={() => setActiveTab('market')}
             onBackToOrchard={() => setActiveTab('orchard')}
+            hasSeenIntro={hasTractorManIntroSeen}
+            onMarkIntroSeen={() => setHasTractorManIntroSeen(true)}
+            fontScale={fontScale}
+          />
+        )}
+
+        {activeTab === 'mainstreet' && (
+          <MainStreetView
+            onBackToOrchard={() => setActiveTab('orchard')}
+            onBackToMarket={() => setActiveTab('market')}
+            fontScale={fontScale}
+          />
+        )}
+
+        {activeTab === 'forestpath' && (
+          <ForestPathView
+            onBackToOrchard={() => setActiveTab('orchard')}
+            onBackToMarket={() => setActiveTab('market')}
+            fontScale={fontScale}
           />
         )}
 
@@ -1029,6 +1165,7 @@ export default function App() {
               onResetGame={handleRequestReset}
               onManualSave={handleManualSave}
               onOpenWelcomePlaque={() => setIsWelcomeOpen(true)}
+              fontScale={fontScale}
             />
           </div>
         )}
@@ -1041,42 +1178,61 @@ export default function App() {
         plot={plantingPlot}
         money={money}
         onPlantTree={handlePlantTree}
+        fontScale={fontScale}
       />
 
-      <CiderPressModal
+      <FarmhouseFruitJuicerModal
         isOpen={isCiderPressOpen}
         onClose={() => setIsCiderPressOpen(false)}
         basket={basket}
         onCraftProduct={handleCraftProduct}
         cidersPressed={cidersPressed}
+        juiceInventory={juiceInventory}
+        fontScale={fontScale}
       />
 
       <ResetConfirmModal
         isOpen={isResetConfirmOpen}
         onConfirm={handleConfirmReset}
         onCancel={() => setIsResetConfirmOpen(false)}
+        fontScale={fontScale}
       />
 
-      <WelcomeModal isOpen={isWelcomeOpen} onClose={handleDismissWelcome} />
+      <WelcomeModal
+        isOpen={isWelcomeOpen}
+        onClose={handleDismissWelcome}
+        fontScale={fontScale}
+      />
 
       <UnreachableApplesModal
         isOpen={isUnreachableModalOpen}
         onClose={() => setIsUnreachableModalOpen(false)}
+        fontScale={fontScale}
       />
 
       <TruckKeysModal
         isOpen={isTruckModalOpen}
         onClose={() => setIsTruckModalOpen(false)}
+        fontScale={fontScale}
       />
 
       <MarketWelcomeModal
         isOpen={isMarketWelcomeOpen}
         onClose={handleDismissMarketWelcome}
+        fontScale={fontScale}
       />
 
       <FiftyDollarMilestoneModal
         isOpen={isFiftyMilestoneOpen}
         onClose={handleDismissFiftyMilestone}
+        fontScale={fontScale}
+      />
+
+      <BlockedPathModal
+        isOpen={isBlockedPathModalOpen}
+        onClose={() => setIsBlockedPathModalOpen(false)}
+        fontScale={fontScale}
+        isCleared={hasClearedBlockedPath}
       />
     </div>
   );
